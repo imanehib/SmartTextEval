@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - IHM Academy</title>
+  <style>
+    /* Style global */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f4f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #4A90E2, #50E3C2);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    /* Main - Formulaire centré */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    form h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+    form label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+    form input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    form button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      background-color: #ff001e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    form button:hover {
+      background-color: #b30024;
+    }
+    /* Footer */
+    footer {
+      background: #eaeaea;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IHM Academy</h1>
+  </header>
+  <main>
+    <form method="POST">
+      {% csrf_token %}
+      <h2>Connexion</h2>
+      <label for="username">Nom d'utilisateur :</label>
+      <input type="text" name="username" id="username" required>
+      
+      <label for="password">Mot de passe :</label>
+      <input type="password" name="password" id="password" required>
+      
+      <button type="submit">Se connecter</button>
+    </form>
+  </main>
+  <footer>
+    <p>&copy; 2025 IHM Academy. Tous droits réservés.</p>
+  </footer>
+</body>
+</html>

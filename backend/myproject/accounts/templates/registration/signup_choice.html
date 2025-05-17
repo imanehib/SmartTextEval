@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choix d'inscription - IHM Academy</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f4f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #4A90E2, #50E3C2);
+      padding: 1.5rem;
+      text-align: center;
+      color: white;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    main {
+      flex: 1;
+      padding: 2rem;
+      text-align: center;
+    }
+    main h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    main p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #666;
+    }
+    .button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      font-size: 1.2rem;
+      color: white;
+      background-color: #007BFF;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    footer {
+      background: #eaeaea;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IHM Academy</h1>
+  </header>
+  <main>
+    <h2>Inscription</h2>
+    <p>Veuillez indiquer votre profil pour continuer :</p>
+    <a href="{% url 'accounts:student_signup' %}" class="button">Étudiant</a>
+    <a href="{% url 'accounts:professor_signup' %}" class="button">Professeur</a>
+  </main>
+  <footer>
+    <p>&copy; 2025 IHM Academy. Tous droits réservés.</p>
+  </footer>
+</body>
+</html>

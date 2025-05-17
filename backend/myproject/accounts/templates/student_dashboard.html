@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord Étudiant{% endblock %}
+
+{% block content %}
+  <h1>Bienvenue, {{ request.user.get_full_name }}</h1>
+
+  <p>
+    <a class="btn" href="{% url 'text_analysis:home' %}">
+      📝 Accéder au correcteur
+    </a>
+  </p>
+
+  <p>
+    <a class="btn-secondary" href="{% url 'accounts:logout' %}">
+      🔒 Déconnexion
+    </a>
+  </p>
+  <p>
+    <a class="btn-secondary" href="{% url 'accounts:logout' %}">
+      🔒 Déconnexion
+    </a>
+  </p>
+{% endblock %}

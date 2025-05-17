@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>IHM Academy - Accueil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Style global */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(135deg, #4A90E2, #50E3C2);
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+    }
+    header h1 {
+      font-size: 3rem;
+      margin: 0;
+    }
+    header p {
+      font-size: 1.25rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .description {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      text-align: center;
+      color: #555;
+    }
+    nav {
+      margin: 2rem auto;
+      max-width: 600px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    nav a {
+      background: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      font-size: 1.25rem;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      color: #333;
+    }
+    nav a:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #eaeaea;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IHM Academy</h1>
+    <p>Apprenez, exercez et perfectionnez vos compétences linguistiques avec notre plateforme innovante.</p>
+  </header>
+  
+  <section class="description">
+    <p>
+      IHM Academy est votre partenaire pour améliorer la qualité de vos écrits en français. Grâce à des outils de correction avancés et à des ressources adaptées aux étudiants et aux professeurs, nous vous offrons un environnement interactif pour progresser.
+      Que vous souhaitiez vous exercer, corriger vos textes ou créer des exercices, notre plateforme est conçue pour répondre à vos besoins.
+    </p>
+  </section>
+  
+  <nav>
+    <a href="{% url 'accounts:login' %}">Se connecter</a>
+    <a href="{% url 'accounts:signup_choice' %}">S'inscrire</a>
+  </nav>
+  
+  <footer>
+    <p>&copy; 2025 IHM Academy. Tous droits réservés.</p>
+  </footer>
+</body>
+</html>

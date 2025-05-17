@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription Professeur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+      position: relative; /* Pour permettre le positionnement fixe du bouton "Retour" */
+      min-height: 100vh;
+    }
+    h2 {
+      color: #333;
+    }
+    form {
+      background-color: #fff;
+      padding: 1rem 2rem;
+      border: 1px solid #ccc;
+      max-width: 500px;
+      margin: auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #cc00ff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #9500b3;
+    }
+    p {
+      text-align: center;
+    }
+    a {
+      color: #c300ff;
+      text-decoration: none;
+    }
+    /* Style pour le bouton Retour en bas à droite */
+    .btn-retour {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007BFF;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-retour:hover {
+      background-color: #0056b3;
+    }
+    .errorlist {
+      color: red;               
+      list-style-type: none;    
+      margin: 0.5rem 0;         
+      padding: 0;              
+    }
+    .errorlist li {
+      margin-left: 1.5rem;      
+    }
+  </style>
+</head>
+<body>
+  <h2>Inscription Professeur</h2>
+  <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">S'inscrire en tant que professeur</button>
+  </form>
+  <p>Vous avez déjà un compte ? <a href="{% url 'accounts:login' %}">Se connecter</a></p>
+  
+  <!-- Bouton Retour positionné en bas à droite -->
+  <a href="{% url 'accounts:signup_choice' %}" class="btn-retour">Retour</a>
+</body>
+</html>

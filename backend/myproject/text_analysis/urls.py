@@ -1,13 +1,18 @@
 from django.urls import path
 from .views import home, save_text
-from .views import home, delete_text,update_typing_data,update_list,save_user_typing
+from .views import home, delete_text,update_typing_data,update_list,save_user_typing, TypingEventListView
 from django.contrib import admin
-from .views import save_typing_event
+from .views import save_typing_event, SaveTypingDataView
 from django.contrib.auth import views as auth_views
+from . import views
 
+
+
+app_name = 'text_analysis' 
 
 urlpatterns = [
-    path('', home, name='home'),  # Page principale
+    path('', views.home, name='home'),  
+    path('analyze/', views.analyze, name='analyze'),
     path('save/', save_text, name='save_text'),  # Route pour sauvegarder
     path('delete_text/<int:text_id>/', delete_text, name='delete_text'),
     #path('save-typing/', save_typing, name='save_typing'),
@@ -18,7 +23,12 @@ urlpatterns = [
     path("save_typing_event/", save_typing_event, name="save_typing_event"),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('', home, name='home'),
+    path('teacher/add-exercise/', views.add_exercise,     name='add_exercise'),
+    path('teacher/delete-exercise/<int:pk>/', views.delete_exercise, name='delete_exercise'),
+    path('save-typing/', SaveTypingDataView.as_view(), name='save_typing_data'),
+    path('events/', TypingEventListView.as_view(), name='typing_event_list'),
+    #path('export_all_sessions/', views.export_all_sessions_for_logged_student, name='export_all_sessions'),
+    path('export_typingevents/', views.export_typingevents_for_student, name='export_typingevents'),
 
 ]
 

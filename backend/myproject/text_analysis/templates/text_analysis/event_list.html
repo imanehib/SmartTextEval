@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Liste des frappes enregistrées</h2>
+
+  <!-- Bouton export toutes sessions JSON de l'étudiant connecté -->
+  <form method="get" action="{% url 'text_analysis:export_typingevents' %}">
+    <button type="submit">Exporter mes sessions TypingEvent (JSON)</button>
+  </form>
+
+
+
+  <br>
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date / Heure</th>
+        <th>Étudiant</th>
+        <th>Exercice</th>
+        <th>Curseur</th>
+        <th>Action</th>
+        <th>Caractère</th>
+        <th>Texte après action</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for ev in events %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ ev.timestamp }}</td>
+        <td>{{ ev.student.username }}</td>
+        <td>{{ ev.exercise.title }}</td>
+        <td>{{ ev.cursor_position }}</td>
+        <td>{{ ev.action }}</td>
+        <td>{{ ev.char }}</td>
+        <td>{{ ev.text_progression }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7">Aucun événement trouvé.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

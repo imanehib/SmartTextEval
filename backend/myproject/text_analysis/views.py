@@ -1,14 +1,54 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import SavedText
+from .models import SavedText, Exercise , UserTyping , TypingEvent
+from .forms import ExerciseForm
+from django.contrib.auth.decorators import login_required
 import spacy
 from spellchecker import SpellChecker
 import re
 import language_tool_python
+from django.http import HttpResponseForbidden
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
+from django.views import View
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from .utils import compute_diff
+from .schemas import DecodedData
+from django.views.generic import ListView
+from .models import TypingEvent
+from language_tool_python import LanguageTool, LanguageToolPublicAPI
+from language_tool_python.utils import LanguageToolError
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from .models import Exercise, SavedText
+
+
 
 # Charger spaCy avec le modèle français
 nlp = spacy.load("fr_core_news_sm")
-tool = language_tool_python.LanguageToolPublicAPI('fr')
+# tool = language_tool_python.LanguageToolPublicAPI('fr')
+
+_tool = None
+
+def get_language_tool():
+    """
+    Renvoie un client LanguageTool configuré :
+     - d’abord l’API publique (LanguageToolPublicAPI)
+     - en cas d’erreur (quota expiré ou “Upgrade Required”), bascule sur
+       votre instance locale lancée sur http://localhost:8081
+    """
+    global _tool
+    if _tool is None:
+        try:
+            # essai de l'API publique
+            _tool = LanguageToolPublicAPI('fr')
+        except LanguageToolError:
+            # fallback sur votre serveur local
+            _tool = LanguageTool('fr', server_url='http://localhost:8081')
+    return _tool
 
 # Initialisation du correcteur orthographique
 spell_checker = SpellChecker(language='fr')
@@ -41,7 +81,8 @@ def correct_text(text):
                 sentence = " ".join(words)  
 
             # Vérification avec LanguageTool pour grammaire et conjugaison
-            matches = tool.check(sentence)
+            matches = get_language_tool().check(sentence)
+
             
             for match in matches:
                 error_word = match.context[match.offset:match.offset + match.errorLength]
@@ -121,7 +162,28 @@ def correct_text(text):
         "grammar_errors": grammar_errors,
         "special_messages": special_messages  # Ajout de messages spéciaux dans un champ séparé
     }
+
+# text_analysis/views.py
+
+
+@login_required
 def home(request):
+    # 1. Récupérer tous les exercices
+    exercises = Exercise.objects.all()
+
+    # 2. Récupérer, si présent, l'exercice sélectionné en GET
+    exercise_id  = request.GET.get('exercise')
+    exercise = None
+    exercise_content = ''
+    if exercise_id:
+        try:
+            exercise = Exercise.objects.get(pk=exercise_id)
+            exercise_content = exercise.content
+        except Exercise.DoesNotExist:
+            exercise = None
+            exercise_content = ''
+
+    # 3. correction (POST)
     result = None
     saved_texts = SavedText.objects.all()  # Récupère tous les textes sauvegardés
 
@@ -142,16 +204,16 @@ def home(request):
                 list_position=list_position, 
                 list_progression=list_progression
             )
-            return redirect('home')  # Redirige après avoir sauvegardé
+            return redirect('text_analysis:home')  # Redirige après avoir sauvegardé
 
-    return render(request, 'home.html', {'result': result, 'saved_texts': saved_texts})
+    return render(request, 'home.html', {'exercises':    exercises, 'selected_id':  exercise_id, 'exercise': exercise, 'exercise_content': exercise_content, 'result': result, 'saved_texts': saved_texts})
 
 def save_text(request):
     if request.method == "POST":
         text = request.POST.get("text", "")
         score = 0
         SavedText.objects.create(text=text, score=score)
-        return redirect('home')
+        return redirect('text_analysis:home')
     return JsonResponse({"error": "Méthode non autorisée"}, status=400)
 
 def delete_text(request, text_id):
@@ -159,11 +221,8 @@ def delete_text(request, text_id):
     text.delete()
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'message': 'Texte supprimé avec succès!'})
-    return redirect('home')
+    return redirect('text_analysis:home')
 
-from django.http import JsonResponse
-from .models import UserTyping
-import json
 
 def update_typing_data(request):
     # Récupérer les données envoyées par la requête JavaScript
@@ -182,8 +241,7 @@ def update_typing_data(request):
 
     return JsonResponse({"message": "Données sauvegardées avec succès"}, status=200)
 
-from django.http import JsonResponse
-from .models import SavedText
+
 
 def update_list(request):
     if request.method == "POST":
@@ -202,14 +260,6 @@ def update_list(request):
         })
     return JsonResponse({'success': False})
 
-from django.shortcuts import render, redirect
-from .models import SavedText
-from django.shortcuts import render
-from .models import UserTyping  # Ou d'autres modèles si nécessaire
-
-from django.shortcuts import render
-
-from django.shortcuts import render
 
 # Supposons que tu aies une fonction d'analyse de texte
 def analyze_text(text):
@@ -249,31 +299,24 @@ def analyze(request):
     return JsonResponse({"error": "Méthode non autorisée"}, status=405)
 
 
-
-# views.py
-
-from django.shortcuts import render
-from django.http import JsonResponse
-from .models import UserTyping
-
 def save_user_typing(request):
     if request.method == "POST":
         text = request.POST.get('text', '')
         cursor_position = request.POST.get('cursor_position', 0)
+        session_id = request.user.username if request.user.is_authenticated else "anonymous"  # ✅ ligne ajoutée
+
 
         # Sauvegarde les frappes dans la base de données
         user_typing = UserTyping.objects.create(
             text=text,
-            cursor_position=cursor_position
+            cursor_position=cursor_position,
+            session_id=session_id,
         )
         
         return JsonResponse({'status': 'success'})
     
     return JsonResponse({'status': 'error'})
-import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import TypingEvent
+
 @csrf_exempt  # Désactiver temporairement CSRF pour le test
 def save_typing_event(request):
     if request.method == "POST":
@@ -297,3 +340,168 @@ def save_typing_event(request):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"message": "Méthode non autorisée"}, status=405)
+
+@login_required
+def add_exercise(request):
+    if request.method == 'POST':
+        form = ExerciseForm(request.POST)
+        if form.is_valid():
+            ex = form.save(commit=False)
+            ex.author = request.user
+            ex.save()
+            return redirect('accounts:professor_dashboard')
+    else:
+        form = ExerciseForm()
+    return render(request, 'text_analysis/add_exercise.html', {'form': form})
+
+@login_required
+def delete_exercise(request, pk):
+    exercise = get_object_or_404(Exercise, pk=pk)
+
+    if not hasattr(request.user, 'role') or request.user.role != 'professor':
+        return HttpResponseForbidden("Accès réservé aux professeurs.")
+    
+    if exercise.author != request.user:
+        return HttpResponseForbidden("Vous n'avez pas le droit de supprimer cet exercice")
+    
+    if request.method == 'POST':
+        exercise.delete()
+        messages.success(request, "Exercice supprimé avec succès.")
+    
+    return redirect('accounts:professor_dashboard')
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.http import JsonResponse
+import json
+from datetime import datetime
+from .models import TypingEvent, Exercise
+from .schemas import DecodedData
+from .utils import compute_diff
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SaveTypingDataView(View):
+    def post(self, request, *args, **kwargs):
+        print("Requête POST reçue pour save_typing_data")
+
+        if not request.user.is_authenticated:
+            print("Utilisateur non authentifié")
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+
+        try:
+            data = DecodedData.parse_raw(request.body)
+            print(f"Données décodées : {data}")
+        except Exception as e:
+            print(f"Erreur de parsing JSON: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=400)
+
+        try:
+            exo = Exercise.objects.get(pk=data.exercise_id)
+            print(f"Exercice trouvé : {exo}")
+        except Exercise.DoesNotExist:
+            print("Exercice introuvable")
+            return JsonResponse({'error': 'Exercise not found'}, status=404)
+
+        user = request.user
+
+        events = []
+        prev = None  # pour identifier la toute première itération
+        for ts_ms, txt, cur in zip(data.time_list, data.text_list, data.cursor_list):
+            try:
+                if prev is None:
+                    prev = txt
+                    continue
+
+                diff = compute_diff(prev, txt)
+                if diff['action'] == 'skip':
+                    prev = txt
+                    continue
+                print(f"Diff trouvé: {diff}")
+
+                event = TypingEvent(
+                    student         = user,
+                    exercise        = exo,
+                    timestamp       = datetime.fromtimestamp(ts_ms / 1000),
+                    cursor_position = int(cur),
+                    char            = diff['char'],
+                    action          = diff['action'],
+                    text_progression= txt,
+                )
+                events.append(event)
+                prev = txt  # mise à jour ici à chaque tour !
+
+            except Exception as e:
+                print(f"Erreur pendant compute_diff: {str(e)}")
+
+
+
+        if events:
+            TypingEvent.objects.bulk_create(events)
+            print(f"{len(events)} événements enregistrés")
+            return JsonResponse({'status': 'success', 'saved_events': len(events)})
+        else:
+            print("Aucun événement à enregistrer")
+            return JsonResponse({'error': 'No events created'}, status=400)
+
+
+
+
+class TypingEventListView(ListView):
+    model = TypingEvent
+    template_name = 'text_analysis/event_list.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        return (super()
+                .get_queryset()
+                .select_related('student', 'exercise')
+                .order_by('-timestamp'))
+    
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponse
+from collections import defaultdict
+import json
+from .models import TypingEvent
+from .schemas import DecodedData
+
+@login_required
+def export_typingevents_for_student(request):
+    student_id = request.user.id
+
+    # On récupère tous les événements de l'utilisateur, triés par exercice et par timestamp
+    events = TypingEvent.objects.filter(student_id=student_id).order_by('exercise_id', 'timestamp')
+
+    if not events.exists():
+        return JsonResponse({'message': 'Aucune frappe trouvée pour cet utilisateur.'}, status=404)
+
+    # On regroupe par exercice
+    sessions = defaultdict(list)
+    for ev in events:
+        sessions[ev.exercise_id].append(ev)
+
+    all_sessions_data = []
+
+    for exercise_id, ev_list in sessions.items():
+        exercise = ev_list[0].exercise  # On suppose tous les events ont le même exercice
+        time_list = [int(ev.timestamp.timestamp() * 1000) for ev in ev_list]
+        text_list = [ev.text_progression for ev in ev_list]
+        cursor_list = [str(ev.cursor_position) for ev in ev_list]
+
+        data = DecodedData(
+            final_text=text_list[-1],
+            context=exercise.content or "",
+            text_type="",
+            time_list=time_list,
+            text_list=text_list,
+            cursor_list=cursor_list,
+            student_id=str(student_id),
+            exercise_id=str(exercise_id)
+        )
+        all_sessions_data.append(data.dict())
+
+    json_data = json.dumps(all_sessions_data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_data, content_type='application/json; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename=typingevents_student_{student_id}.json'
+    return response

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+
 LOGIN_URL = 'login'  # L'URL vers la page de connexion
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,8 +39,8 @@ ALLOWED_HOSTS = []
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'text_analysis', 'static')]
 
-LOGIN_REDIRECT_URL = '/'  # Redirige vers la page d'accueil après la connexion
-LOGOUT_REDIRECT_URL = '/'  # Redirige vers la page d'accueil après la déconnexion
+LOGIN_REDIRECT_URL = '/accounts/login/' 
+LOGOUT_REDIRECT_URL = 'index'  # Redirige vers la page d'accueil après la déconnexion
 
 # Application definition
 
@@ -50,14 +51,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'myproject.text_analysis',  # Ajoute ceci ici
+    'myproject.text_analysis', 
+    'myproject.accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -69,10 +71,8 @@ ROOT_URLCONF = 'myproject.myproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'templates',  # Si vous avez un répertoire templates au niveau de votre projet
-        ],
-        'APP_DIRS': True,  # Assurez-vous que cette ligne est définie sur True
+        'DIRS': [ BASE_DIR / 'templates', BASE_DIR / 'text_analysis' / 'templates', BASE_DIR / 'accounts' / 'templates', ],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -121,9 +121,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr'
 
-TIME_ZONE = 'Europe/Paris'  # Exemple pour la France
+TIME_ZONE = 'Europe/Paris'  
 
 USE_I18N = True
 
@@ -140,3 +140,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+

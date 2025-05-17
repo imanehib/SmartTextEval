@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord Professeur{% endblock %}
+
+{% block content %}
+  <h1>Votre espace Professeur</h1>
+
+  <!-- 🔔 Messages de confirmation (ex : suppression réussie) -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <p>
+    <a href="{% url 'text_analysis:add_exercise' %}" class="btn">
+      ➕ Ajouter un exercice de votre choix
+    </a>
+  </p>
+
+  <h2>Mes exercices</h2>
+  <ul>
+    {% for ex in exercises %}
+      <li>
+        <strong>{{ ex.title }}</strong>
+        (<a href="{% url 'text_analysis:home' %}?exercise={{ ex.id }}">voir</a>)
+
+        <!-- 🗑 Formulaire de suppression avec confirmation -->
+        <form method="POST" action="{% url 'text_analysis:delete_exercise' ex.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?');">
+            🗑 Supprimer
+          </button>
+        </form>
+      </li>
+    {% empty %}
+      <li>Vous n'avez encore créé aucun exercice.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

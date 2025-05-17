@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Ajouter Exercice{% endblock %}
+{% block content %}
+  <h1>Ajouter un nouvel exercice</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Enregistrer</button>
+    <a href="{% url 'accounts:professor_dashboard' %}" class="btn-return">← Retour</a>
+  </form>
+{% endblock %}
