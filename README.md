@@ -51,7 +51,7 @@ SmartTextEval is a Django-based web platform that provides **automated writing e
 
 ### 👩‍🏫 Teacher Interface
 - Secure login and access control
-- XML-based exercise creation
+- Simple exercise creation
 - Viewing and evaluation of student submissions
 
 ### 👨‍🎓 Student Dashboard
