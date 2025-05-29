@@ -80,16 +80,16 @@ SmartTextEval/
 │   └── templates/
 │       ├── registration/
 │       │   ├── login.html
-│       │   ├── signup\_choice.html
-│       │   ├── student\_signup.html
-│       │   └── professor\_signup.html
+│       │   ├── signup_choice.html
+│       │   ├── student_signup.html
+│       │   └── professor_signup.html
 │       └── accounts/
-│           ├── professor\_dashboard.html
-│           └── student\_dashboard.html
-├── text\_analysis/           # NLP logic and correction engine
+│           ├── professor_dashboard.html
+│           └── student_dashboard.html
+├── text_analysis/           # NLP logic and correction engine
 │   └── templates/
-│       └── text\_analysis/
-│           ├── add\_exercise.html
+│       └── text_analysis/
+│           ├── add_exercise.html
 │           └── home.html
 
 ````
