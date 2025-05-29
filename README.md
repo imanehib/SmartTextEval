@@ -117,6 +117,17 @@ Open in your browser: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
+## 🧠 Writing Behavior Analysis & JSON Export
+
+You can view the full history of typing events and saved texts from students at:
+
+👉 [http://127.0.0.1:8000/text-analysis/events/](http://127.0.0.1:8000/text-analysis/events/)
+
+This page allows you to:
+- 🔁 **Replay the writing process**, including cursor movements and keystrokes
+- 📦 **Download the full dataset in JSON format** for further analysis or research
+---
+
 ## 🔒 Security Notes
 
 * `DEBUG = True` is enabled (disable in production)
