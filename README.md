@@ -1,7 +1,4 @@
 ---
-
-### ✅ `README.md` — Version finale, claire, professionnelle et complète
-
 # SmartTextEval 🎓📝  
 An Intelligent Writing Evaluation Interface
 
