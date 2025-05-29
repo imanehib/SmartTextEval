@@ -143,6 +143,8 @@ Open in your browser: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 * **Hoang Nguyen Vu**
 
 **Supervisors**: François Bouchet - Léo Nebel
+---
+
 Université Sorbonne — M1 Informatique 2024–2025
 
 ---
