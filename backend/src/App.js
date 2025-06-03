@@ -6,19 +6,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post("/api/evaluate", (req, res) => {
-  const { text } = req.body;
-
-  // 🔹 Simulation d’évaluation
-  let feedback = "Texte bien structuré !";
-  if (text.length < 20) {
-    feedback = "Le texte est trop court.";
-  } else if (text.includes("erreur")) {
-    feedback = "Attention, ton texte contient des erreurs.";
-  }
-
-  res.json({ feedback });
-});
 
 app.post("/api/save", (req, res) => {
   const { text } = req.body;
