@@ -168,21 +168,6 @@
             </div>
         {% endif %}
         
-        <div class="saved-texts">
-            <h3>Textes sauvegardés :</h3>
-            <ul>
-                {% for saved_text in saved_texts %}
-                    <li>
-                        <span>{{ saved_text.text }}</span>
-                        <form method="POST" action="{% url 'delete_text' saved_text.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="delete-btn">Supprimer</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
     
     <script>
         document.addEventListener("DOMContentLoaded", function () {
