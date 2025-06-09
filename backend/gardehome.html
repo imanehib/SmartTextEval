@@ -133,7 +133,7 @@
                 <button type="submit" class="btn-analyze">Analyser</button>
             </div>
         </form>
-
+        
         {% if result %}
             <div class="result">
                 <h3>Texte corrigé :</h3>
@@ -170,6 +170,27 @@
         
     
     <script>
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('text-input');
+
+        // Block copy, cut, paste
+        ['copy', 'cut', 'paste'].forEach(event => {
+            textarea.addEventListener(event, e => e.preventDefault());
+        });
+
+        // Block spellcheck (already done via attribute)
+        textarea.setAttribute('spellcheck', 'false');
+
+        // Block Ctrl+Z (Undo)
+        textarea.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+            }
+        });
+        });
+        
         document.addEventListener("DOMContentLoaded", function () {
             // Afficher le bouton "Sauvegarder" si un texte corrigé existe
             const correctedText = document.getElementById("corrected-text");

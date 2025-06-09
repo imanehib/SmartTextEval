@@ -30,7 +30,7 @@ def on_key_event(event):
         
         # Gestion de la touche retour arrière
         if event.name == "backspace":
-            current_text = current_text[:-1]
+            current_text = current_text[:-1] # attention erreur si cursor pas à la fin
         elif event.name == "space":
             current_text += " "  # Ajout d'un espace
         else:
