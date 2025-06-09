@@ -167,11 +167,18 @@
     <!-- Formulaire d'analyse -->
     <form method="POST">
       {% csrf_token %}
-      <textarea
-        name="text"
-        id="text-input"
-        placeholder="Tapez votre texte ici..."
-        maxlength="5000"
+      <textarea 
+          name="text" 
+          id="text-input" 
+          placeholder="Tapez votre texte ici..." 
+          maxlength="5000" 
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          oncopy="return false" 
+          oncut="return false" 
+          onpaste="return false"
       >{{ request.POST.text }}</textarea>
 
       <!-- Messages de capitalisation -->
@@ -270,11 +277,29 @@
   <!-- Script d’affichage du bouton "Sauvegarder" et d’enregistrement des frappes -->
   <script>
   document.addEventListener("DOMContentLoaded", function () {
+
+    const textarea = document.getElementById("text-input");
+    // Bloquer copier, couper, coller
+    ['copy', 'cut', 'paste'].forEach(evt =>
+        textarea.addEventListener(evt, e => e.preventDefault())
+    );
+
+    // Bloquer Ctrl+Z / Cmd+Z
+    textarea.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+            e.preventDefault();
+        }
+    });
+
+    // Désactiver vérification orthographique au cas où HTML ne suffirait pas
+    textarea.setAttribute("spellcheck", "false");
+    textarea.setAttribute("autocomplete", "off");
+    textarea.setAttribute("autocorrect", "off");
+    textarea.setAttribute("autocapitalize", "off");
     // Récupération des éléments
     const correctedText = document.getElementById("corrected-text");
     const saveButton    = document.getElementById("save-btn");
-    const textarea      = document.getElementById("text-input");
-
+    
       // Récupération des IDs depuis les champs cachés
     const EXERCISE_ID = document.getElementById("js-exercise-id").value;
     const STUDENT_ID  = document.getElementById("js-student-id").value;

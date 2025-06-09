@@ -193,14 +193,14 @@ def home(request):
         list_progression = request.POST.get('list_progression', '')  # Récupère la progression du texte
 
         # Correction du texte
-        result = correct_text(text)
+        #result = correct_text(text)
 
         # Sauvegarder dans la base de données
         if 'save' in request.POST:
             # Sauvegarder le texte, la position et la progression dans la base de données
             SavedText.objects.create(
                 text=text, 
-                score=result.get("score", 0), 
+                score=0,
                 list_position=list_position, 
                 list_progression=list_progression
             )
