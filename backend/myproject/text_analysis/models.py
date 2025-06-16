@@ -42,12 +42,11 @@ class TypingEvent(models.Model):
     exercise    = models.ForeignKey(Exercise, on_delete=models.CASCADE)
     text_progression = models.TextField()  # Évolution du texte
     timestamp = models.DateTimeField(auto_now_add=True)  # Date d'enregistrement
-    char        = models.CharField(max_length=1)
     action      = models.CharField(max_length=10, choices=[('insert','insert'),('delete','delete')])
     class Meta:
         ordering = ['timestamp']
     def __str__(self):
-        return f"Event de {self.student} exo={self.exercise.id} pos={self.cursor_position} {self.action} '{self.char}'"
+        return f"Event de {self.student} exo={self.exercise.id} pos={self.cursor_position} {self.action}"
 
 
 

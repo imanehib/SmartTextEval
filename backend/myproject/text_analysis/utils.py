@@ -4,7 +4,7 @@ def compute_diff(old: str, new: str):
     Si c'est trop complexe, retourne une opération 'skip'.
     """
     if old == new:
-        return {'action': 'skip', 'char': '', 'position': 0}
+        return {'action': 'skip'}
 
     # repère le premier index où les deux chaînes diffèrent
     for idx, (co, cn) in enumerate(zip(old, new)):
@@ -15,12 +15,12 @@ def compute_diff(old: str, new: str):
 
     delta = len(new) - len(old)
 
-    if delta == 1:
+    if delta >0:
         # insertion simple
-        return {'action': 'insert', 'char': new[idx], 'position': idx}
-    elif delta == -1:
+        return {'action': 'insert'}
+    elif delta < 0:
         # suppression simple
-        return {'action': 'delete', 'char': old[idx], 'position': idx}
+        return {'action': 'delete'}
     else:
         # modification trop complexe (remplacement, plusieurs insertions...)
-        return {'action': 'skip', 'char': '', 'position': idx}
+        return {'action': 'skip'}

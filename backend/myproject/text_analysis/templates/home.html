@@ -165,7 +165,7 @@
     {% endif %}
 
     <!-- Formulaire d'analyse -->
-    <form method="POST">
+    <form method="POST"  action="{% url 'text_analysis:save_text' %}" id="save-form">
       {% csrf_token %}
       <textarea 
           name="text" 
@@ -187,11 +187,11 @@
       {% endfor %}
 
       <div class="buttons-container">
-        <button type="submit" class="btn-analyze">Analyser</button>
+        <button type="submit" class="btn-analyze" id="save-btn">Valider</button>
       </div>
     </form>
-
-    <!-- Résultats et suggestions -->
+    
+    <!-- Résultats et suggestions 
     {% if result %}
       <div class="result">
         <h3>Texte corrigé :</h3>
@@ -225,7 +225,7 @@
         </form>
       </div>
     {% endif %}
-
+    -->
     <!-- Textes sauvegardés -->
     <div class="saved-texts">
       <h3>Textes sauvegardés :</h3>
@@ -289,6 +289,18 @@
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
             e.preventDefault();
         }
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          
+          const start = this.selectionStart;
+          const end = this.selectionEnd;
+
+          const spaces = '    '; // 4 spaces
+          this.value = this.value.substring(0, start) + spaces + this.value.substring(end);
+          
+          // Move the cursor after the inserted spaces
+          this.selectionStart = this.selectionEnd = start + spaces.length;
+        }
     });
 
     // Désactiver vérification orthographique au cas où HTML ne suffirait pas
@@ -314,15 +326,22 @@
       saveButton.style.display = "inline-block";
     }
 
+  
+
+    textarea.addEventListener("input", logState);
     // 2) À chaque frappe on stocke timestamp / texte / position curseur
-    textarea.addEventListener("input", function () {
-      timeList.push(Date.now());                 // timestamp en ms
-      textList.push(textarea.value);             // état complet du texte
-      cursorList.push(String(textarea.selectionStart));  // position du curseur
+    function logState() {
+    setTimeout(() => {
+      const value = textarea.value;
+      timeList.push(Date.now());
+      textList.push(value);
+      console.log("Current value:", value);
+      cursorList.push(String(textarea.selectionStart));
       saveToSession("time_list", timeList);
       saveToSession("text_list", textList);
       saveToSession("cursor_list", cursorList);
-    });
+    }, 0); // Delay ensures trailing space is present
+  }
 
     // 3) Quand on clique sur Sauvegarder, on envoie tout d’un coup
     saveButton.addEventListener("click", function () {

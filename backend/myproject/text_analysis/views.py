@@ -189,8 +189,8 @@ def home(request):
 
     if request.method == "POST":
         text = request.POST.get('text', '').strip()
-        list_position = request.POST.get('list_position', '')  # Récupère la position du curseur
-        list_progression = request.POST.get('list_progression', '')  # Récupère la progression du texte
+        #list_position = request.POST.get('list_position', '')  # Récupère la position du curseur
+        #list_progression = request.POST.get('list_progression', '')  # Récupère la progression du texte
 
         # Correction du texte
         #result = correct_text(text)
@@ -201,8 +201,8 @@ def home(request):
             SavedText.objects.create(
                 text=text, 
                 score=0,
-                list_position=list_position, 
-                list_progression=list_progression
+                #list_position=list_position, 
+                #list_progression=list_progression
             )
             return redirect('text_analysis:home')  # Redirige après avoir sauvegardé
 
@@ -411,21 +411,19 @@ class SaveTypingDataView(View):
         for ts_ms, txt, cur in zip(data.time_list, data.text_list, data.cursor_list):
             try:
                 if prev is None:
-                    prev = txt
-                    continue
-
-                diff = compute_diff(prev, txt)
-                if diff['action'] == 'skip':
-                    prev = txt
-                    continue
-                print(f"Diff trouvé: {diff}")
+                    diff = {'action': 'insert'}  # première itération, on considère comme insertion
+                else:
+                    diff = compute_diff(prev, txt)
+                    if diff['action'] == 'skip':
+                        prev = txt
+                        continue
+                    print(f"Diff trouvé: {diff}")
 
                 event = TypingEvent(
                     student         = user,
                     exercise        = exo,
-                    timestamp       = datetime.fromtimestamp(ts_ms / 1000),
+                    timestamp       = ts_ms / 1000,
                     cursor_position = int(cur),
-                    char            = diff['char'],
                     action          = diff['action'],
                     text_progression= txt,
                 )

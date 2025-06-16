@@ -24,7 +24,6 @@ class TypingEventAdmin(admin.ModelAdmin):
         'timestamp',
         'cursor_position',
         'action',
-        'char',
     )
     list_filter     = ('action', 'exercise', 'student')
     search_fields   = ('student__username', 'exercise__title')
