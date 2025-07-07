@@ -115,6 +115,22 @@
       border: none;
     }
     .delete-btn:hover { background: #b71c1c; }
+  
+    #success-message {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px 24px;
+      border: 1px solid #c3e6cb;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 9999;
+    }
+
   </style>
 </head>
 <body>
@@ -378,6 +394,7 @@
         sessionStorage.removeItem("cursor_list");
         saveButton.disabled = true;
         saveButton.textContent = "Enregistré ";
+       
       })
       .catch(err => console.error("Erreur enregistrement :", err));
     });
