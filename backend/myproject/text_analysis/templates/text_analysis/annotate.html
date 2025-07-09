@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Annotation{% endblock %}
+{% block content %}
+
+  <h1>Annotation</h1>
+
+
+
+  <form method="post"  action="{% url 'text_analysis:annotate_view'%}">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="text">Texte à annoter</label>
+      <p id="text" name="text" required>{{ text }}</p>
+    </div>
+
+    {% for label in labels %}
+    <div class="form-group">
+      <label for="grade{{ forloop.counter }}">{{ label }}</label>
+      <select id="grade{{ forloop.counter }}" name="grade{{ forloop.counter }}" class="form-control" required>
+        <option value="">Choisir une note</option>
+        <option value="1">1 - Faible</option>
+        <option value="2">2 - Moyen</option>
+        <option value="3">3 - Bon</option>
+      </select>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn">Enregistrer</button>
+    
+    <a href="{% url 'accounts:professor_dashboard' %}" class="btn-return">← Retour</a>
+  </form>
+
+  
+
+{% endblock %}

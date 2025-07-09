@@ -21,6 +21,7 @@ class SavedText(models.Model):
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # Ajoute ceci si ce champ n'est pas défini
+    assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
@@ -48,5 +49,13 @@ class TypingEvent(models.Model):
     def __str__(self):
         return f"Event de {self.student} exo={self.exercise.id} pos={self.cursor_position} {self.action}"
 
+class SavedAnnotation(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    annotation = models.TextField(blank=True, null=True)  # Champ pour l'annotation
+
+    def __str__(self):
+        return f"Annotation de {self.user.username} pour l'exercice {self.exercise.title}"
 
 

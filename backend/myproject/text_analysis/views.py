@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import SavedText, Exercise , UserTyping , TypingEvent
+from .models import SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
 from .forms import ExerciseForm
 from django.contrib.auth.decorators import login_required
 import spacy
@@ -503,3 +503,38 @@ def export_typingevents_for_student(request):
     response = HttpResponse(json_data, content_type='application/json; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename=typingevents_student_{student_id}.json'
     return response
+
+
+@login_required
+def annotate_view(request):
+    
+    if request.method == 'POST':
+        text = request.POST.get('text', '')
+        grades = []
+        for i in range(1, 5):
+            grade = request.POST.get(f'grade{i}')
+            if not grade:
+                messages.error(request, "Tous les critères doivent être notés.")
+                return redirect('text_analysis:annotate_view')
+            grades.append(grade)
+
+        annotation = "|".join(grades)
+
+        if not text or not annotation:
+            messages.error(request, "Le texte et l'annotation ne peuvent pas être vides.")
+            return redirect('text_analysis:annotate_view')
+
+        SavedAnnotation.objects.create(
+            student=request.user,
+            text=text,
+            annotation=annotation
+        )
+        messages.success(request, "Annotation sauvegardée avec succès.")
+        return redirect('text_analysis:annotate_view')
+    else:
+        my_text = get_object_or_404(SavedText, pk=49)#change the pk to the one you want to annotate
+        labels = ["Clarté", "Organisation", "Pertinence", "Orthographe"]
+        context = {'text': my_text.text, 'labels': labels}
+        
+        #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
+        return render(request, 'text_analysis/annotate.html', context)

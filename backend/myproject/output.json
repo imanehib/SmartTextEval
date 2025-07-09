@@ -1,0 +1,902 @@
+[
+  {
+    "id": 182,
+    "text_progression": "Je",
+    "timestamp": "2025-05-16 00:41:48.079226",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 2
+  },
+  {
+    "id": 183,
+    "text_progression": "Je ne",
+    "timestamp": "2025-05-16 00:41:48.079345",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 5
+  },
+  {
+    "id": 184,
+    "text_progression": "Je ne cr",
+    "timestamp": "2025-05-16 00:41:48.079402",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 8
+  },
+  {
+    "id": 185,
+    "text_progression": "Je ne cro",
+    "timestamp": "2025-05-16 00:41:48.079451",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 9
+  },
+  {
+    "id": 186,
+    "text_progression": "Je ne croi",
+    "timestamp": "2025-05-16 00:41:48.079502",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 10
+  },
+  {
+    "id": 187,
+    "text_progression": "Je ne crois",
+    "timestamp": "2025-05-16 00:41:48.079557",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 11
+  },
+  {
+    "id": 188,
+    "text_progression": "Je ne croi",
+    "timestamp": "2025-05-16 00:41:48.079615",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 10
+  },
+  {
+    "id": 189,
+    "text_progression": "Je ne cro",
+    "timestamp": "2025-05-16 00:41:48.079670",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 9
+  },
+  {
+    "id": 190,
+    "text_progression": "Je ne cr",
+    "timestamp": "2025-05-16 00:41:48.079724",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 8
+  },
+  {
+    "id": 191,
+    "text_progression": "Je ne c",
+    "timestamp": "2025-05-16 00:41:48.079780",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 7
+  },
+  {
+    "id": 192,
+    "text_progression": "Je ne pe",
+    "timestamp": "2025-05-16 00:41:48.079834",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 8
+  },
+  {
+    "id": 193,
+    "text_progression": "Je ne pen",
+    "timestamp": "2025-05-16 00:41:48.079887",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 9
+  },
+  {
+    "id": 194,
+    "text_progression": "Je ne pens",
+    "timestamp": "2025-05-16 00:41:48.079943",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 10
+  },
+  {
+    "id": 195,
+    "text_progression": "Je ne pense",
+    "timestamp": "2025-05-16 00:41:48.079995",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 11
+  },
+  {
+    "id": 196,
+    "text_progression": "Je ne penses",
+    "timestamp": "2025-05-16 00:41:48.080049",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 12
+  },
+  {
+    "id": 197,
+    "text_progression": "Je ne penses pa",
+    "timestamp": "2025-05-16 00:41:48.080104",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 15
+  },
+  {
+    "id": 198,
+    "text_progression": "Je ne penses pas",
+    "timestamp": "2025-05-16 00:41:48.080153",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 16
+  },
+  {
+    "id": 199,
+    "text_progression": "Je ne penses pas qu",
+    "timestamp": "2025-05-16 00:41:48.080205",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 19
+  },
+  {
+    "id": 200,
+    "text_progression": "Je ne penses pas que",
+    "timestamp": "2025-05-16 00:41:48.080268",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 20
+  },
+  {
+    "id": 201,
+    "text_progression": "Je ne penses pas que le",
+    "timestamp": "2025-05-16 00:41:48.080421",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 23
+  },
+  {
+    "id": 202,
+    "text_progression": "Je ne penses pas que les",
+    "timestamp": "2025-05-16 00:41:48.080599",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 24
+  },
+  {
+    "id": 203,
+    "text_progression": "Je ne penses pas que les re",
+    "timestamp": "2025-05-16 00:41:48.080658",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 27
+  },
+  {
+    "id": 204,
+    "text_progression": "Je ne penses pas que les res",
+    "timestamp": "2025-05-16 00:41:48.080704",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 28
+  },
+  {
+    "id": 205,
+    "text_progression": "Je ne penses pas que les resa",
+    "timestamp": "2025-05-16 00:41:48.080739",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 29
+  },
+  {
+    "id": 206,
+    "text_progression": "Je ne penses pas que les resau",
+    "timestamp": "2025-05-16 00:41:48.080775",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 30
+  },
+  {
+    "id": 207,
+    "text_progression": "Je ne penses pas que les resauo",
+    "timestamp": "2025-05-16 00:41:48.080811",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 31
+  },
+  {
+    "id": 208,
+    "text_progression": "Je ne penses pas que les resauos",
+    "timestamp": "2025-05-16 00:41:48.080863",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 32
+  },
+  {
+    "id": 209,
+    "text_progression": "Je ne penses pas que les resauo",
+    "timestamp": "2025-05-16 00:41:48.080920",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 31
+  },
+  {
+    "id": 210,
+    "text_progression": "Je ne penses pas que les resauox",
+    "timestamp": "2025-05-16 00:41:48.080955",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 32
+  },
+  {
+    "id": 211,
+    "text_progression": "Je ne penses pas que les resauox so",
+    "timestamp": "2025-05-16 00:41:48.080993",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 35
+  },
+  {
+    "id": 212,
+    "text_progression": "Je ne penses pas que les resauox soc",
+    "timestamp": "2025-05-16 00:41:48.081027",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 36
+  },
+  {
+    "id": 213,
+    "text_progression": "Je ne penses pas que les resauox soci",
+    "timestamp": "2025-05-16 00:41:48.081060",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 37
+  },
+  {
+    "id": 214,
+    "text_progression": "Je ne penses pas que les resauox socia",
+    "timestamp": "2025-05-16 00:41:48.081103",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 38
+  },
+  {
+    "id": 215,
+    "text_progression": "Je ne penses pas que les resauox sociau",
+    "timestamp": "2025-05-16 00:41:48.081136",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 39
+  },
+  {
+    "id": 216,
+    "text_progression": "Je ne penses pas que les resauox sociaus",
+    "timestamp": "2025-05-16 00:41:48.081169",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 40
+  },
+  {
+    "id": 217,
+    "text_progression": "Je ne penses pas que les resauox sociaus ra",
+    "timestamp": "2025-05-16 00:41:48.081211",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 43
+  },
+  {
+    "id": 218,
+    "text_progression": "Je ne penses pas que les resauox sociaus rap",
+    "timestamp": "2025-05-16 00:41:48.081244",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 44
+  },
+  {
+    "id": 219,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapp",
+    "timestamp": "2025-05-16 00:41:48.081278",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 45
+  },
+  {
+    "id": 220,
+    "text_progression": "Je ne penses pas que les resauox sociaus rappr",
+    "timestamp": "2025-05-16 00:41:48.081310",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 46
+  },
+  {
+    "id": 221,
+    "text_progression": "Je ne penses pas que les resauox sociaus rappro",
+    "timestamp": "2025-05-16 00:41:48.081342",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 47
+  },
+  {
+    "id": 222,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapproc",
+    "timestamp": "2025-05-16 00:41:48.081373",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 48
+  },
+  {
+    "id": 223,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapproch",
+    "timestamp": "2025-05-16 00:41:48.081405",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 49
+  },
+  {
+    "id": 224,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapproche",
+    "timestamp": "2025-05-16 00:41:48.081437",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 50
+  },
+  {
+    "id": 225,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochen",
+    "timestamp": "2025-05-16 00:41:48.081468",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 51
+  },
+  {
+    "id": 226,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent",
+    "timestamp": "2025-05-16 00:41:48.081500",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 52
+  },
+  {
+    "id": 227,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent le",
+    "timestamp": "2025-05-16 00:41:48.081531",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 55
+  },
+  {
+    "id": 228,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les",
+    "timestamp": "2025-05-16 00:41:48.081562",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 56
+  },
+  {
+    "id": 229,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les ge",
+    "timestamp": "2025-05-16 00:41:48.081593",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 59
+  },
+  {
+    "id": 230,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gen",
+    "timestamp": "2025-05-16 00:41:48.081624",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 60
+  },
+  {
+    "id": 231,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens",
+    "timestamp": "2025-05-16 00:41:48.081655",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 61
+  },
+  {
+    "id": 232,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens en",
+    "timestamp": "2025-05-16 00:41:48.081688",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 64
+  },
+  {
+    "id": 233,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens ent",
+    "timestamp": "2025-05-16 00:41:48.081719",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 65
+  },
+  {
+    "id": 234,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entr",
+    "timestamp": "2025-05-16 00:41:48.081756",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 66
+  },
+  {
+    "id": 235,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre",
+    "timestamp": "2025-05-16 00:41:48.081810",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 67
+  },
+  {
+    "id": 236,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre ex",
+    "timestamp": "2025-05-16 00:41:48.081845",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 70
+  },
+  {
+    "id": 237,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre exu",
+    "timestamp": "2025-05-16 00:41:48.081877",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 71
+  },
+  {
+    "id": 238,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre ex",
+    "timestamp": "2025-05-16 00:41:48.081908",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 70
+  },
+  {
+    "id": 239,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre e",
+    "timestamp": "2025-05-16 00:41:48.081939",
+    "action": "delete",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 69
+  },
+  {
+    "id": 240,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre eu",
+    "timestamp": "2025-05-16 00:41:48.082007",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 70
+  },
+  {
+    "id": 241,
+    "text_progression": "Je ne penses pas que les resauox sociaus rapprochent les gens entre eux",
+    "timestamp": "2025-05-16 00:41:48.082044",
+    "action": "insert",
+    "exercise_id": 11,
+    "student_id": 5,
+    "cursor_position": 71
+  },
+  {
+    "id": 242,
+    "text_progression": "jn",
+    "timestamp": "2025-05-16 01:44:27.002843",
+    "action": "insert",
+    "exercise_id": 9,
+    "student_id": 6,
+    "cursor_position": 2
+  },
+  {
+    "id": 243,
+    "text_progression": "jnk",
+    "timestamp": "2025-05-16 01:44:27.002915",
+    "action": "insert",
+    "exercise_id": 9,
+    "student_id": 6,
+    "cursor_position": 3
+  },
+  {
+    "id": 244,
+    "text_progression": "jnkh",
+    "timestamp": "2025-05-16 01:44:27.002952",
+    "action": "insert",
+    "exercise_id": 9,
+    "student_id": 6,
+    "cursor_position": 4
+  },
+  {
+    "id": 245,
+    "text_progression": "jnkhk",
+    "timestamp": "2025-05-16 01:44:27.002995",
+    "action": "insert",
+    "exercise_id": 9,
+    "student_id": 6,
+    "cursor_position": 5
+  },
+  {
+    "id": 246,
+    "text_progression": "jnkhkb",
+    "timestamp": "2025-05-16 01:44:27.003043",
+    "action": "insert",
+    "exercise_id": 9,
+    "student_id": 6,
+    "cursor_position": 6
+  },
+  {
+    "id": 445,
+    "text_progression": "1",
+    "timestamp": "2025-06-16 12:33:12.217991",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 1
+  },
+  {
+    "id": 446,
+    "text_progression": "1.",
+    "timestamp": "2025-06-16 12:33:12.218022",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 2
+  },
+  {
+    "id": 447,
+    "text_progression": "1. d",
+    "timestamp": "2025-06-16 12:33:12.218037",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 4
+  },
+  {
+    "id": 448,
+    "text_progression": "1. de",
+    "timestamp": "2025-06-16 12:33:12.218049",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 5
+  },
+  {
+    "id": 449,
+    "text_progression": "1. def",
+    "timestamp": "2025-06-16 12:33:12.218061",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 6
+  },
+  {
+    "id": 450,
+    "text_progression": "1. def h",
+    "timestamp": "2025-06-16 12:33:12.218072",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 8
+  },
+  {
+    "id": 451,
+    "text_progression": "1. def he",
+    "timestamp": "2025-06-16 12:33:12.218083",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 9
+  },
+  {
+    "id": 452,
+    "text_progression": "1. def hel",
+    "timestamp": "2025-06-16 12:33:12.218094",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 10
+  },
+  {
+    "id": 453,
+    "text_progression": "1. def hell",
+    "timestamp": "2025-06-16 12:33:12.218105",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 11
+  },
+  {
+    "id": 454,
+    "text_progression": "1. def hello",
+    "timestamp": "2025-06-16 12:33:12.218116",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 12
+  },
+  {
+    "id": 455,
+    "text_progression": "1. def hello_",
+    "timestamp": "2025-06-16 12:33:12.218127",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 13
+  },
+  {
+    "id": 456,
+    "text_progression": "1. def hello_w",
+    "timestamp": "2025-06-16 12:33:12.218137",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 14
+  },
+  {
+    "id": 457,
+    "text_progression": "1. def hello_wo",
+    "timestamp": "2025-06-16 12:33:12.218149",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 15
+  },
+  {
+    "id": 458,
+    "text_progression": "1. def hello_wor",
+    "timestamp": "2025-06-16 12:33:12.218159",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 16
+  },
+  {
+    "id": 459,
+    "text_progression": "1. def hello_worl",
+    "timestamp": "2025-06-16 12:33:12.218169",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 17
+  },
+  {
+    "id": 460,
+    "text_progression": "1. def hello_world",
+    "timestamp": "2025-06-16 12:33:12.218180",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 18
+  },
+  {
+    "id": 461,
+    "text_progression": "1. def hello_world(",
+    "timestamp": "2025-06-16 12:33:12.218192",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 19
+  },
+  {
+    "id": 462,
+    "text_progression": "1. def hello_world()",
+    "timestamp": "2025-06-16 12:33:12.218203",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 20
+  },
+  {
+    "id": 463,
+    "text_progression": "1. def yhello_world()",
+    "timestamp": "2025-06-16 12:33:12.218214",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 8
+  },
+  {
+    "id": 464,
+    "text_progression": "1. def yhello_world()o",
+    "timestamp": "2025-06-16 12:33:12.218225",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 22
+  },
+  {
+    "id": 465,
+    "text_progression": "1. def yhello_world()",
+    "timestamp": "2025-06-16 12:33:12.218236",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 21
+  },
+  {
+    "id": 466,
+    "text_progression": "1. def yohello_world()",
+    "timestamp": "2025-06-16 12:33:12.218246",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 9
+  },
+  {
+    "id": 467,
+    "text_progression": "1. def yothello_world()",
+    "timestamp": "2025-06-16 12:33:12.218257",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 10
+  },
+  {
+    "id": 468,
+    "text_progression": "1. def yotohello_world()",
+    "timestamp": "2025-06-16 12:33:12.218268",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 11
+  },
+  {
+    "id": 469,
+    "text_progression": "1. def yotothello_world()",
+    "timestamp": "2025-06-16 12:33:12.218278",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 12
+  },
+  {
+    "id": 470,
+    "text_progression": "1. def yotohello_world()",
+    "timestamp": "2025-06-16 12:33:12.218289",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 11
+  },
+  {
+    "id": 471,
+    "text_progression": "1. def yothello_world()",
+    "timestamp": "2025-06-16 12:33:12.218300",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 10
+  },
+  {
+    "id": 472,
+    "text_progression": "1. def ythello_world()",
+    "timestamp": "2025-06-16 12:33:12.218310",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 8
+  },
+  {
+    "id": 473,
+    "text_progression": "1. def yhello_world()",
+    "timestamp": "2025-06-16 12:33:12.218321",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 8
+  },
+  {
+    "id": 474,
+    "text_progression": "1. def hello_world()",
+    "timestamp": "2025-06-16 12:33:12.218332",
+    "action": "delete",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 7
+  },
+  {
+    "id": 475,
+    "text_progression": "1. def hello_world():",
+    "timestamp": "2025-06-16 12:33:12.218342",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 21
+  },
+  {
+    "id": 476,
+    "text_progression": "1. def hello_world():\n    I",
+    "timestamp": "2025-06-16 12:33:12.218353",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 27
+  },
+  {
+    "id": 477,
+    "text_progression": "1. def hello_world():\n    I s",
+    "timestamp": "2025-06-16 12:33:12.218364",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 29
+  },
+  {
+    "id": 478,
+    "text_progression": "1. def hello_world():\n    I se",
+    "timestamp": "2025-06-16 12:33:12.218376",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 30
+  },
+  {
+    "id": 479,
+    "text_progression": "1. def hello_world():\n    I see",
+    "timestamp": "2025-06-16 12:33:12.218388",
+    "action": "insert",
+    "exercise_id": 15,
+    "student_id": 12,
+    "cursor_position": 31
+  }
+]

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, save_text
+from .views import home, save_text, annotate_view
 from .views import home, delete_text,update_typing_data,update_list,save_user_typing, TypingEventListView
 from django.contrib import admin
 from .views import save_typing_event, SaveTypingDataView
@@ -29,6 +29,7 @@ urlpatterns = [
     path('events/', TypingEventListView.as_view(), name='typing_event_list'),
     #path('export_all_sessions/', views.export_all_sessions_for_logged_student, name='export_all_sessions'),
     path('export_typingevents/', views.export_typingevents_for_student, name='export_typingevents'),
+    path('annotate/', annotate_view, name='annotate_view'),
 
 ]
 
