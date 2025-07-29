@@ -183,6 +183,17 @@
     <!-- Formulaire d'analyse -->
     <form method="POST"  action="{% url 'text_analysis:save_text' %}" id="save-form">
       {% csrf_token %}
+
+      <!-- Hidden field for exercise_content -->
+      {% if exercise_content %}
+        <input type="hidden" name="exercise_content" value="{{ exercise_content|escape }}">
+      {% endif %}
+
+      <!-- Hidden field for exercise_id -->
+      {% if selected_id %}
+        <input type="hidden" name="exercise_id" value="{{ selected_id|escape }}">
+      {% endif %}
+
       <textarea 
           name="text" 
           id="text-input" 
@@ -290,6 +301,31 @@
   </script>
 
 
+  <!-- Script pour gérer la sélection d'exercice et supprimer le sessionStorage en cas de changement -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const exerciseSelect = document.getElementById("exercise");
+      exerciseSelect.addEventListener("change", function () {
+        sessionStorage.removeItem("time_list");
+        sessionStorage.removeItem("text_list");
+        sessionStorage.removeItem("cursor_list");
+      });
+    });
+  </script>
+
+
+ <!-- Script pour supprimer le session storage si nécessaire-->
+  <script>
+    if (document.cookie.includes('clear_session_storage=1')) {
+      sessionStorage.removeItem("time_list");
+      sessionStorage.removeItem("text_list");
+      sessionStorage.removeItem("cursor_list");
+
+      // Remove cookie (only for this page load)
+      document.cookie = "clear_session_storage=; max-age=0";
+    }
+  </script>
+
   <!-- Script d’affichage du bouton "Sauvegarder" et d’enregistrement des frappes -->
   <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -346,18 +382,26 @@
 
     textarea.addEventListener("input", logState);
     // 2) À chaque frappe on stocke timestamp / texte / position curseur
+    let startTime = null;
+    let lastTimestamp = null; // track last input time
     function logState() {
-    setTimeout(() => {
-      const value = textarea.value;
-      timeList.push(Date.now());
-      textList.push(value);
-      console.log("Current value:", value);
+      const now = performance.now();
+
+      // Calculate delay from previous input
+      let delay = 0;
+      if (lastTimestamp !== null) {
+        delay = now - lastTimestamp;
+      }
+      lastTimestamp = now;
+
+      timeList.push(delay);  // delta in ms
+      textList.push(textarea.value);
       cursorList.push(String(textarea.selectionStart));
+
       saveToSession("time_list", timeList);
       saveToSession("text_list", textList);
       saveToSession("cursor_list", cursorList);
-    }, 0); // Delay ensures trailing space is present
-  }
+    }
 
     // 3) Quand on clique sur Sauvegarder, on envoie tout d’un coup
     saveButton.addEventListener("click", function () {

@@ -1,6 +1,8 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+
+from revision.process_report import characterize_revisions, generate_process_report
 from .models import SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
 from .forms import ExerciseForm
 from django.contrib.auth.decorators import login_required
@@ -189,6 +191,7 @@ def home(request):
 
     if request.method == "POST":
         text = request.POST.get('text', '').strip()
+        instructions = request.POST.get("exercise_content", "")
         #list_position = request.POST.get('list_position', '')  # Récupère la position du curseur
         #list_progression = request.POST.get('list_progression', '')  # Récupère la progression du texte
 
@@ -198,23 +201,47 @@ def home(request):
         # Sauvegarder dans la base de données
         if 'save' in request.POST:
             # Sauvegarder le texte, la position et la progression dans la base de données
-            SavedText.objects.create(
+            saved = SavedText.objects.create(
                 text=text, 
                 score=0,
+                instructions=instructions,
+                exercise_id = exercise_id,
+                student_id=request.user.id
                 #list_position=list_position, 
                 #list_progression=list_progression
             )
-            return redirect('text_analysis:home')  # Redirige après avoir sauvegardé
+             # Attach all relevant TypingEvents to this SavedText
+            TypingEvent.objects.filter(
+                student=request.user,
+                exercise_id=exercise_id,
+                saved_text__isnull=True  # optional: only those not yet linked
+            ).update(saved_text=saved)
+
+                    # Clear session (client-side must clear too, ideally via JS after successful form post)
+            response = redirect('process_report', saved.id)
+            response.set_cookie('clear_session_storage', '1', max_age=5)
+            return response
+
 
     return render(request, 'home.html', {'exercises':    exercises, 'selected_id':  exercise_id, 'exercise': exercise, 'exercise_content': exercise_content, 'result': result, 'saved_texts': saved_texts})
 
 def save_text(request):
     if request.method == "POST":
+        instructions = request.POST.get("exercise_content", "")
+        exercise_id = request.POST.get("exercise_id", None)  # Récupérer l'ID de l'exercice
+        exercise = get_object_or_404(Exercise, pk=exercise_id)
         text = request.POST.get("text", "")
         score = 0
-        SavedText.objects.create(text=text, score=score)
-        return redirect('text_analysis:home')
+        saved = SavedText.objects.create(text=text, score=score, instructions=instructions, exercise = exercise, student=request.user)
+         # Attach all relevant TypingEvents to this SavedText
+        TypingEvent.objects.filter(
+            student=request.user,
+            exercise_id=exercise_id,
+            saved_text__isnull=True  # optional: only those not yet linked
+        ).update(saved_text=saved)
+        return redirect('process_report', saved.id) 
     return JsonResponse({"error": "Méthode non autorisée"}, status=400)
+
 
 def delete_text(request, text_id):
     text = get_object_or_404(SavedText, id=text_id)
@@ -421,7 +448,7 @@ class SaveTypingDataView(View):
 
                 event = TypingEvent(
                     student         = user,
-                    exercise        = exo,
+                    exercise       = exo,
                     timestamp       = ts_ms / 1000,
                     cursor_position = int(cur),
                     action          = diff['action'],
@@ -538,3 +565,38 @@ def annotate_view(request):
         
         #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
         return render(request, 'text_analysis/annotate.html', context)
+    
+
+@login_required
+def process_report_view(request, id):
+    
+    if request.method == 'GET':
+        my_text = get_object_or_404(SavedText, id=id)
+        print(my_text)
+        keystrokes = TypingEvent.objects.filter(saved_text=id).order_by('id')
+        time_list = [k.timestamp for k in keystrokes]
+        text_list = [k.text_progression for k in keystrokes]
+        cursor_list = [k.cursor_position for k in keystrokes]
+        # On peut ajouter des logs pour vérifier les données
+        print(f"Text: {my_text.text}") 
+        print(f"Instructions: {my_text.instructions}")
+        print(f"Time List: {time_list}")
+        print(f"Text List: {text_list}")
+        print(f"User: {request.user.id}")
+        print(f"Exercise ID: {my_text.exercise_id}")
+        print(f"Text ID: {my_text.id}")
+        decoded_data = DecodedData(
+            final_text=my_text.text,
+            context=my_text.instructions,
+            text_type="",
+            time_list=time_list,
+            text_list=text_list,
+            cursor_list=cursor_list,
+            student_id=str(request.user.id),
+            exercise_id=str(my_text.exercise_id),
+            text_id=str(my_text.id)
+        )
+        revisions = characterize_revisions(decoded_data)
+        report = generate_process_report(revisions)
+        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_list': text_list, 'time_list': time_list, 'cursor_list': cursor_list, 'process_report': report} # TODO : handle multiple trials of the same exercise
+        return render(request, 'text_analysis/process_report.html', context)

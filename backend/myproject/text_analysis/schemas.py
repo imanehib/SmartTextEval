@@ -10,7 +10,7 @@ class DecodedData(BaseModel):
     cursor_list: List[str]  # liste des positions du curseur à chaque frappe clavier
     student_id: str         # identifiant de l'étudiant
     exercise_id: str        # identifiant de l'exercice
-
+    
     class Config:
         str_strip_whitespace = True
         validate_by_name = True

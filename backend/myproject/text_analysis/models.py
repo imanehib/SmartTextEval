@@ -21,8 +21,10 @@ class SavedText(models.Model):
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # Ajoute ceci si ce champ n'est pas défini
-    assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
-
+    assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='teacher_assigned_texts')
+    instructions = models.TextField(blank=True, null=True)  # Instructions pour l'exercice
+    exercise = models.ForeignKey(Exercise, null=True, blank=True, on_delete=models.CASCADE)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='student_saved_texts')
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
 
@@ -41,8 +43,9 @@ class TypingEvent(models.Model):
     cursor_position = models.PositiveIntegerField() # Position du curseur
     student     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     exercise    = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    saved_text = models.ForeignKey('SavedText', on_delete=models.SET_NULL, null=True, blank=True)
     text_progression = models.TextField()  # Évolution du texte
-    timestamp = models.DateTimeField(auto_now_add=True)  # Date d'enregistrement
+    timestamp = models.FloatField() 
     action      = models.CharField(max_length=10, choices=[('insert','insert'),('delete','delete')])
     class Meta:
         ordering = ['timestamp']

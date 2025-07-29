@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{%  block head %}
+<style>
+  #display {
+    white-space: pre-wrap;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    width: 100%;
+    height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+  }
+</style>
+{% endblock %}
+{% block title %}Retours sur la révision{% endblock %}
+{% block content %}
+
+
+    <!-- Display instructions and written texts-->
+    <div class="container">
+        <h2>Instructions</h2>
+        <p>{{ instructions }}</p>
+
+        <h2>Textes écrits</h2>
+        <p>{{ text }}</p>
+    </div>
+
+    <!-- Display the process report indicators -->
+    <div class="container">
+        <h2>Rapport de processus</h2>
+        <ul>
+            {% for key, value in process_report.items %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Display the text writing in real time based on the keystrokes -->
+
+  <button id="playButton">▶️ Play</button>
+  <div id="display">
+
+
+  </div>
+  {{ text_list|json_script:"text-data" }}
+  {{ time_list|json_script:"time-data" }}
+
+
+
+{% block script %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const textList = JSON.parse(document.getElementById("text-data").textContent);
+  const timeList = JSON.parse(document.getElementById("time-data").textContent);
+
+  const display = document.getElementById("display");
+  const playButton = document.getElementById("playButton");
+
+  playButton.addEventListener("click", () => {
+    display.textContent = "";
+    let i = 0;
+
+    function step() {
+      if (i >= textList.length) return;
+      display.textContent = textList[i];
+      i++;
+      if (i < textList.length) {
+        setTimeout(step, Math.max(1, timeList[i - 1]*1000));
+      }
+    }
+
+    step();
+  });
+});
+</script>
+{% endblock %}
+  
+
+
+  
+
+{% endblock %}
