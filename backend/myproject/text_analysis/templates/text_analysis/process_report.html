@@ -1,82 +1,218 @@
-{% extends "base.html" %}
-{%  block head %}
-<style>
-  #display {
-    white-space: pre-wrap;
-    border: 1px solid #ccc;
-    padding: 1rem;
+<!-- updated view.html extending base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Retours sur la révision</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  #timeline {
+    position: relative;
+    height: 30px;
     width: 100%;
-    height: 200px;
-    overflow-y: auto;
-    font-family: monospace;
+    overflow: hidden;
+    border: 2px solid #333;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  #timeline::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #333;
+    opacity: 0.3;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #timeline::after {
+    content: "→";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-weight: bold;
+    font-size: 18px;
+    color: #666;
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
+  }
+  #timeline > div {
+    position: absolute;
+    z-index: 1;
   }
 </style>
-{% endblock %}
-{% block title %}Retours sur la révision{% endblock %}
-{% block content %}
+</head>
 
+<body class="bg-light">
 
-    <!-- Display instructions and written texts-->
-    <div class="container">
-        <h2>Instructions</h2>
-        <p>{{ instructions }}</p>
+  <header class="bg-primary text-white text-center py-3">
+    <h1>Retours sur la révision</h1>
+  </header>
 
-        <h2>Textes écrits</h2>
-        <p>{{ text }}</p>
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
     </div>
-
-    <!-- Display the process report indicators -->
-    <div class="container">
-        <h2>Rapport de processus</h2>
-        <ul>
-            {% for key, value in process_report.items %}
-                <li>{{ key }}: {{ value }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Display the text writing in real time based on the keystrokes -->
-
-  <button id="playButton">▶️ Play</button>
-  <div id="display">
+  </nav>
 
 
+<main class="container my-4">
+
+
+<div class="mb-4">
+  <h2>Instructions</h2>
+  <p>{{ instructions }}</p>
+
+  <h2>Texte final</h2>
+  <p>{{ text }}</p>
+</div>
+
+<h2>Répartition de l'activité d'écriture</h2>
+<div id="timeline"
+     class="border rounded mb-2"
+     style="position: relative; height: 30px; width: 100%; overflow: hidden;
+            border: 2px solid #333;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+</div>
+
+
+<!-- Legend -->
+<div class="mt-4 mb-4">
+  <div class="mb-2"> 
+  <h4>Légende :</h4>
   </div>
-  {{ text_list|json_script:"text-data" }}
-  {{ time_list|json_script:"time-data" }}
+<div class="d-flex flex-row align-items-center gap-4">
+
+    <div style="height: 30px; width: 40px; border: 2px solid #333; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2); background-color: #4caf50;"></div>
+    <div>Écriture</div>
+
+
+    <div style="height: 30px; width: 40px; border: 2px solid #333; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2); background-color: #f44336;"></div>
+    <span>Révision de surface</span>
+
+
+    <div style="height: 30px; width: 40px; border: 2px solid #333; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2); background-color: #2196F3;"></div>
+    <span>Révision de sens</span>
+  
+</div>
+</div>
 
 
 
-{% block script %}
+
+<h4>Reproduction de l'écriture du texte :</h4>
+<button id="playButton" class="btn btn-primary mb-3">▶️ Rejouer</button>
+
+<!-- Keystroke replay -->
+<div id="display" 
+     class="p-3 bg-white font-monospace" 
+     style="white-space: pre-wrap; min-height: 200px; 
+            border: 3px solid #333; border-radius: 6px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.15);
+            text-align: center;">
+</div>
+
+
+<h4>Indicateurs</h4>
+
+
+</main>
+
+
+{{ text_list|json_script:"text-data" }}
+{{ time_list|json_script:"time-data" }}
+{{ graph_info|json_script:"graph-data" }}
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const textList = JSON.parse(document.getElementById("text-data").textContent);
   const timeList = JSON.parse(document.getElementById("time-data").textContent);
-
   const display = document.getElementById("display");
   const playButton = document.getElementById("playButton");
-
   playButton.addEventListener("click", () => {
-    display.textContent = "";
-    let i = 0;
-
-    function step() {
-      if (i >= textList.length) return;
-      display.textContent = textList[i];
-      i++;
-      if (i < textList.length) {
-        setTimeout(step, Math.max(1, timeList[i - 1]*1000));
+  display.textContent = "";
+  let i = 0;
+  function step() {
+    if (i >= textList.length) return;
+    display.textContent = textList[i];
+    i++;
+    if (i < textList.length) {
+      let delay;
+      if (i === 1) {
+        delay = 0; // first delay
+      } else {
+        delay = (timeList[i] - timeList[i - 1]) * 1000;
       }
+      setTimeout(step, delay);
+      console.log(delay);
     }
+  }
+  step();
+});
 
-    step();
+ const graphData = JSON.parse(document.getElementById("graph-data").textContent);
+  
+  const timelineEl = document.getElementById("timeline");
+
+  const segments = graphData.map(segment =>  ({
+    start: segment.start,
+    end: segment.end,
+    type: segment.type
+  }));
+
+  const minTime = Math.min(...segments.map(s => s.start));
+  const maxTime = Math.max(...segments.map(s => s.end));
+  const totalDuration = maxTime - minTime;
+
+  const colors = {
+    "writing": "#4caf50",
+    "surface": "#f44336",
+    "meaning-oriented": "#2196F3",
+    default: "#999"
+  };
+
+  segments.forEach(segment => {
+    const leftPercent = ((segment.start - minTime) / totalDuration) * 100;
+    const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
+
+    const block = document.createElement("div");
+    block.style.position = "absolute";
+    block.style.top = "0";
+    block.style.left = `${leftPercent}%`;
+    block.style.width = `${widthPercent}%`;
+    block.style.height = "100%";
+    block.style.backgroundColor = colors[segment.type] || colors.default;
+    block.title = `${segment.type} | ${segment.start} - ${segment.end}`;
+
+    timelineEl.appendChild(block);
   });
 });
 </script>
-{% endblock %}
-  
 
-
-  
-
-{% endblock %}
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

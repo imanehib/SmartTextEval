@@ -1,0 +1,128 @@
+<!-- updated view.html extending base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Retours sur la révision</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+  <header class="bg-primary text-white text-center py-3">
+    <h1>Retours sur la révision</h1>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+
+<main class="container my-4">
+
+    
+
+<form action="{% url 'submit_questionnaire' %}" method="post" style="max-width: 700px; margin: auto; font-family: Arial, sans-serif;">
+    {% csrf_token %}
+    <h2>Réflexion post-écriture</h2>
+    <p>Maintenant que vous avez soumis votre essai, prenez le temps de répondre aux questions ci-dessous concernant votre stratégie d'écriture. La réponse à ces questions ne sera pas évaluée, il n'y a pas de bonne réponse attendue. 
+        Elles sont proposées uniquement pour vous permettre de prendre du recul sur vos méthodes d'écriture.</p>
+
+    <!-- 1. Overall approach -->
+    <label for="overall-approach"><strong>1. Avez vous pensé à réviser votre rédaction? Si oui, quelle a été votre approche?</strong></label><br>
+    <textarea id="overall-approach" name="overall_approach" rows="4" style="width:100%;" placeholder="Décris ton approche de révision du texte..."></textarea><br><br>
+
+    <!-- 2. Specific changes -->
+    <label for="changes"><strong>2. Quels ont été les changements les plus importants réalisés durant votre révision</strong></label><br>
+    <textarea id="changes" name="changes" rows="4" style="width:100%;" placeholder="E.g., réorganiser les paragraphres, clarifier le propos, améliorer les transitions..."></textarea><br><br>
+
+    <!-- 3. Attention to details -->
+    <label><strong>3. A quel point avez vous fait attention à ces différents aspects durant votre révision?</strong></label>
+    <table style="width:100%; border-collapse: collapse; margin-top: 5px; text-align: center;">
+        <thead>
+        <tr>
+            <th style="border-bottom: 1px solid #ccc; text-align: left;">Aspect</th>
+            <th>Pas du tout</th>
+            <th>Un peu</th>
+            <th>Modérément</th>
+            <th>Enormément</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left;">Clarté des idées</td>
+            <td><input type="radio" name="clarity" value="Pas du tout"></td>
+            <td><input type="radio" name="clarity" value="Un peu"></td>
+            <td><input type="radio" name="clarity" value="Modérément"></td>
+            <td><input type="radio" name="clarity" value="Enormément"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Organisation & structure</td>
+            <td><input type="radio" name="organization" value="Pas du tout"></td>
+            <td><input type="radio" name="organization" value="Un peu"></td>
+            <td><input type="radio" name="organization" value="Modérément"></td>
+            <td><input type="radio" name="organization" value="Enormément"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Grammaire et syntaxe</td>
+            <td><input type="radio" name="grammar" value="Pas du tout"></td>
+            <td><input type="radio" name="grammar" value="Un peu"></td>
+            <td><input type="radio" name="grammar" value="Modérément"></td>
+            <td><input type="radio" name="grammar" value="Enormément"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Style et choix des mots</td>
+            <td><input type="radio" name="style" value="Pas du tout"></td>
+            <td><input type="radio" name="style" value="Un peu"></td>
+            <td><input type="radio" name="style" value="Modérément"></td>
+            <td><input type="radio" name="style" value="Enormément"></td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+
+    <!-- 4. Feedback usage -->
+    <label for="time-use"><strong>4. Comment penses-tu avoir réparti ton temps entre les différentes phases d'écriture? (Planification, formulation, révision)</strong></label><br>
+    <textarea id="time-use" name="time_use" rows="4" style="width:100%;" placeholder="As-tu fait un brouillon? As-tu révisé tout le long de ta rédaction, juste à la fin....?"></textarea><br><br>
+
+    <!-- 5. Self-assessment -->
+    <label for="revision-continuous"><strong>5. As-tu l'impression d'avoir interrompu ta tâche ou as-tu travaillé de manière constante?</strong></label><br>
+    <textarea id="revision-continuous" name="revision_continuous" rows="3" style="width:100%;"></textarea><br><br>
+
+    <label for="revision-improvements"><strong>6. Que ferais-tu pour améliorer ta révision?</strong></label><br>
+    <textarea id="revision-improvements" name="revision_improvements" rows="3" style="width:100%;"></textarea><br><br>
+
+    <!-- Submit -->
+    <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Envoyer les réponses</button>
+</form>
+
+
+
+
+</main>
+
+
+
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

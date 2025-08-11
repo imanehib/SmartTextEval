@@ -3,48 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}IHM Academy{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* Exemple de style commun */
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f2f4f8; }
-    header { background: #4A90E2; color:white; padding:1rem; text-align:center; }
-    nav { text-align:center; margin:1rem 0; }
-    nav a, nav form button {
-      margin:0 .5rem; text-decoration:none; color:#fff; background:#50E3C2;
-      padding:.5rem 1rem; border:none; border-radius:4px;
-    }
-    nav form { display:inline; }
-    footer { text-align:center; padding:1rem; background:#eaeaea; font-size:.9rem; }
-    .container { max-width:800px; margin:2rem auto; padding:0 1rem; }
-    .btn-return { display:inline-block; margin-top:1rem; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  {% block head %}{% endblock %}
 </head>
-<body>
+<body class="bg-light">
 
-  <header>
+  <header class="bg-primary text-white text-center py-3">
     <h1>IHM Academy</h1>
   </header>
 
-  <nav>
-    <a href="{% url 'text_analysis:home' %}">Exercices</a>
-    {% if user.is_authenticated %}
-      <form action="{% url 'accounts:logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Déconnexion</button>
-      </form>
-    {% else %}
-      <a href="{% url 'accounts:login' %}">Connexion</a>
-      <a href="{% url 'accounts:signup_choice' %}">Inscription</a>
-    {% endif %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
   </nav>
 
-  <div class="container">
+  <main class="container my-4">
     {% block content %}{% endblock %}
-  </div>
+  </main>
 
-  <footer>
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
     &copy; 2025 IHM Academy. Tous droits réservés.
   </footer>
 
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -181,7 +181,7 @@
     {% endif %}
 
     <!-- Formulaire d'analyse -->
-    <form method="POST"  action="{% url 'text_analysis:save_text' %}" id="save-form">
+    <form method="POST" id="save-form">
       {% csrf_token %}
 
       <!-- Hidden field for exercise_content -->
@@ -214,63 +214,10 @@
       {% endfor %}
 
       <div class="buttons-container">
-        <button type="submit" class="btn-analyze" id="save-btn">Valider</button>
+        <button type="button" class="btn-analyze" id="save-btn">Valider</button>
       </div>
     </form>
     
-    <!-- Résultats et suggestions 
-    {% if result %}
-      <div class="result">
-        <h3>Texte corrigé :</h3>
-        <p><strong>Correction :</strong> <span id="corrected-text">{{ result.corrected_text }}</span></p>
-        <p><strong>Score :</strong> {{ result.score }}%</p>
-
-        {% if result.suggestions %}
-          <h4>Suggestions orthographiques :</h4>
-          <ul>
-            {% for wrong, fix in result.suggestions.items %}
-              <li><strong>{{ wrong }}</strong> → {{ fix }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        {% if result.grammar_errors %}
-          <h4>Erreurs de grammaire :</h4>
-          <ul>
-            {% for err in result.grammar_errors %}
-              <li>{{ err }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        <form method="POST" action="{% url 'text_analysis:save_text' %}" id="save-form">
-          {% csrf_token %}
-          <input type="hidden" name="text" value="{{ result.corrected_text }}">
-          <input type="hidden" name="list_position" value="{{ result.list_position }}">
-          <input type="hidden" name="list_progression" value="{{ result.list_progression }}">
-          <button type="submit" id="save-btn" class="btn-save">Sauvegarder</button>
-        </form>
-      </div>
-    {% endif %}
-    -->
-    <!-- Textes sauvegardés 
-    <div class="saved-texts">
-      <h3>Textes sauvegardés :</h3>
-      <ul>
-        {% for st in saved_texts %}
-          <li>
-            <span>{{ st.text }}</span>
-            <form method="POST" action="{% url 'text_analysis:delete_text' st.id %}">
-              {% csrf_token %}
-              <button type="submit" class="delete-btn">Supprimer</button>
-            </form>
-          </li>
-        {% empty %}
-          <li>Aucun texte sauvegardé pour le moment.</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>-->
 
 <input type="hidden" id="js-exercise-id" value="{{ exercise.id }}">
 <input type="hidden" id="js-student-id"  value="{{ request.user.id }}">
@@ -314,17 +261,6 @@
   </script>
 
 
- <!-- Script pour supprimer le session storage si nécessaire-->
-  <script>
-    if (document.cookie.includes('clear_session_storage=1')) {
-      sessionStorage.removeItem("time_list");
-      sessionStorage.removeItem("text_list");
-      sessionStorage.removeItem("cursor_list");
-
-      // Remove cookie (only for this page load)
-      document.cookie = "clear_session_storage=; max-age=0";
-    }
-  </script>
 
   <!-- Script d’affichage du bouton "Sauvegarder" et d’enregistrement des frappes -->
   <script>
@@ -379,32 +315,24 @@
     }
 
   
-
     textarea.addEventListener("input", logState);
     // 2) À chaque frappe on stocke timestamp / texte / position curseur
     let startTime = null;
     let lastTimestamp = null; // track last input time
     function logState() {
-      const now = performance.now();
 
-      // Calculate delay from previous input
-      let delay = 0;
-      if (lastTimestamp !== null) {
-        delay = now - lastTimestamp;
-      }
-      lastTimestamp = now;
-
-      timeList.push(delay);  // delta in ms
+      timeList.push(performance.now());  // delta in ms
       textList.push(textarea.value);
       cursorList.push(String(textarea.selectionStart));
-
+      console.log(textList)
       saveToSession("time_list", timeList);
       saveToSession("text_list", textList);
       saveToSession("cursor_list", cursorList);
     }
 
     // 3) Quand on clique sur Sauvegarder, on envoie tout d’un coup
-    saveButton.addEventListener("click", function () {
+    saveButton.addEventListener("click", function (e) {
+      e.preventDefault();
       if (!EXERCISE_ID || isNaN(EXERCISE_ID)) {
         alert("Veuillez choisir un exercice avant de sauvegarder.");
         return;
@@ -421,7 +349,7 @@
         student_id:   STUDENT_ID,
         exercise_id:  EXERCISE_ID,
       };
-
+      console.log("Envoi du payload :", payload);
       fetch("{% url 'text_analysis:save_typing_data' %}", {
         method:  "POST",
         headers: {
@@ -429,13 +357,20 @@
           "X-CSRFToken":  getCookie("csrftoken")
         },
         body: JSON.stringify(payload)
+        
       })
       .then(res => res.json())
       .then(data => {
         console.log("Saved events:", data.saved_events);
-        sessionStorage.removeItem("time_list");
-        sessionStorage.removeItem("text_list");
-        sessionStorage.removeItem("cursor_list");
+        
+        if (data.status === "success" && data.redirect_url) {
+          sessionStorage.removeItem("time_list");
+          sessionStorage.removeItem("text_list");
+          sessionStorage.removeItem("cursor_list");
+          window.location.href = data.redirect_url;  // 👈 Redirects the user
+        } else {
+          alert("Erreur lors de l'enregistrement");
+        }
         saveButton.disabled = true;
         saveButton.textContent = "Enregistré ";
        

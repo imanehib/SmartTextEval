@@ -1,171 +1,40 @@
 import json
+import threading
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from revision.process_report import characterize_revisions, generate_process_report
-from .models import SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
+from ..text_analysis.process_report import characterize_revisions, generate_process_report
+
+
+
+from .models import Questionnaire, SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
 from .forms import ExerciseForm
 from django.contrib.auth.decorators import login_required
-import spacy
-from spellchecker import SpellChecker
-import re
-import language_tool_python
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse, JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.views import View
-from django.http import JsonResponse
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from .utils import compute_diff
 from .schemas import DecodedData
 from django.views.generic import ListView
 from .models import TypingEvent
-from language_tool_python import LanguageTool, LanguageToolPublicAPI
-from language_tool_python.utils import LanguageToolError
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from .models import Exercise, SavedText
+import json
+from django.contrib.auth.decorators import login_required 
+from django.core.cache import cache
+from collections import defaultdict
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 
-# Charger spaCy avec le modèle français
-nlp = spacy.load("fr_core_news_sm")
-# tool = language_tool_python.LanguageToolPublicAPI('fr')
-
-_tool = None
-
-def get_language_tool():
-    """
-    Renvoie un client LanguageTool configuré :
-     - d’abord l’API publique (LanguageToolPublicAPI)
-     - en cas d’erreur (quota expiré ou “Upgrade Required”), bascule sur
-       votre instance locale lancée sur http://localhost:8081
-    """
-    global _tool
-    if _tool is None:
-        try:
-            # essai de l'API publique
-            _tool = LanguageToolPublicAPI('fr')
-        except LanguageToolError:
-            # fallback sur votre serveur local
-            _tool = LanguageTool('fr', server_url='http://localhost:8081')
-    return _tool
-
-# Initialisation du correcteur orthographique
-spell_checker = SpellChecker(language='fr')
-
-def correct_text(text):
-    """Corrige les fautes orthographiques, grammaticales et de conjugaison"""
-
-    if not text.strip():
-        return {"corrected_text": text, "score": 100, "suggestions": {}, "special_messages": []}
-
-    # Séparer les phrases en tenant compte de la ponctuation
-    sentences = re.split(r'([.!?])\s*', text)
-    
-    suggestions = {}
-    special_messages = []
-    corrected_sentences = []
-
-    for i in range(0, len(sentences), 2):  # Parcours des phrases
-        if i < len(sentences):
-            sentence = sentences[i].strip()  
-            punctuation = sentences[i + 1] if i + 1 < len(sentences) else ""  
-
-            # Vérification des majuscules AVANT tout
-            words = re.findall(r"\w+|[.,!?;']", sentence)
-            if words:
-                first_word = words[0]
-                if first_word[0].islower():
-                    words[0] = first_word.capitalize()
-                    special_messages.append(("La phrase doit commencer par une majuscule.", first_word))
-                sentence = " ".join(words)  
-
-            # Vérification avec LanguageTool pour grammaire et conjugaison
-            matches = get_language_tool().check(sentence)
-
-            
-            for match in matches:
-                error_word = match.context[match.offset:match.offset + match.errorLength]
-                suggestion = match.replacements[0] if match.replacements else ""
-
-                # Gestion des mots avec apostrophe, comme "m'appelle"
-                if "'" in error_word:
-                    parts = error_word.split("'")
-                    if len(parts) == 2 and parts[0] in {"m", "t", "s", "l", "d", "n", "j"}:
-                        # On ne vérifie que la partie après l'apostrophe
-                        root_word = parts[1]
-                        if root_word.lower() in spell_checker.unknown([root_word.lower()]):
-                            corrected = spell_checker.correction(root_word.lower())
-                            if corrected:
-                                suggestions[root_word] = corrected
-                                sentence = sentence.replace(root_word, corrected, 1)
-                        continue  # On ne doit pas modifier "m'" par exemple, seulement la deuxième partie
-
-                if suggestion and error_word.lower() != suggestion.lower():
-                    suggestions[error_word] = suggestion
-                    sentence = sentence.replace(error_word, suggestion, 1)
-
-            # Vérification orthographique des autres mots
-            words = re.findall(r"\w+|[.,!?;']", sentence)
-
-            for j, word in enumerate(words):
-                if word.isalpha() and "'" not in word:  
-                    lower_word = word.lower()
-                    if lower_word in spell_checker.unknown([lower_word]):  
-                        corrected = spell_checker.correction(lower_word)
-                        if corrected:
-                            suggestions[word] = corrected
-                            words[j] = corrected  
-
-            # Reconstruction de la phrase corrigée
-            corrected_sentence = " ".join(words) + punctuation
-            corrected_sentences.append(corrected_sentence)
-
-    # Reconstruction du texte corrigé
-    corrected_text = " ".join(corrected_sentences)
-
-    # Calcul du score
-    total_words = sum(1 for w in corrected_text.split() if w.isalpha())
-    incorrect_words = len(suggestions)
-    score = max(0, 100 - (incorrect_words / total_words * 100)) if total_words else 100
-    score = round(score, 2)
-
-    return {
-        "corrected_text": corrected_text,
-        "score": score,
-        "suggestions": suggestions,
-        "special_messages": special_messages  
-    }
-    # 🔹 Corriger la majuscule au début de la phrase et après chaque ponctuation
-    def capitalize_after_punctuation(text):
-        # Mettre la première lettre en majuscule après une ponctuation, même sans espace
-        text = re.sub(r'([.!?]\s*)(\w)', lambda x: x.group(1) + x.group(2).upper(), text)
-        # Vérifier la première lettre du texte
-        if text and text[0].islower():
-            text = text[0].upper() + text[1:]
-            special_messages.append('La phrase devrait commencer par une majuscule.')
-        return text
-
-    # Corriger la capitalisation après chaque ponctuation
-    corrected_text = capitalize_after_punctuation(corrected_text)
-
-    # Calcul du score basé sur le nombre d'erreurs corrigées
-    total_words = len(words)
-    incorrect_words = len(suggestions)
-    score = max(0, 100 - (incorrect_words / total_words * 100)) if total_words else 100
-    score = round(score, 2)
-
-    return {
-        "corrected_text": corrected_text,
-        "score": score,
-        "suggestions": suggestions,
-        "grammar_errors": grammar_errors,
-        "special_messages": special_messages  # Ajout de messages spéciaux dans un champ séparé
-    }
-
-# text_analysis/views.py
 
 
 @login_required
@@ -189,58 +58,11 @@ def home(request):
     result = None
     saved_texts = SavedText.objects.all()  # Récupère tous les textes sauvegardés
 
-    if request.method == "POST":
-        text = request.POST.get('text', '').strip()
-        instructions = request.POST.get("exercise_content", "")
-        #list_position = request.POST.get('list_position', '')  # Récupère la position du curseur
-        #list_progression = request.POST.get('list_progression', '')  # Récupère la progression du texte
-
-        # Correction du texte
-        #result = correct_text(text)
-
-        # Sauvegarder dans la base de données
-        if 'save' in request.POST:
-            # Sauvegarder le texte, la position et la progression dans la base de données
-            saved = SavedText.objects.create(
-                text=text, 
-                score=0,
-                instructions=instructions,
-                exercise_id = exercise_id,
-                student_id=request.user.id
-                #list_position=list_position, 
-                #list_progression=list_progression
-            )
-             # Attach all relevant TypingEvents to this SavedText
-            TypingEvent.objects.filter(
-                student=request.user,
-                exercise_id=exercise_id,
-                saved_text__isnull=True  # optional: only those not yet linked
-            ).update(saved_text=saved)
-
-                    # Clear session (client-side must clear too, ideally via JS after successful form post)
-            response = redirect('process_report', saved.id)
-            response.set_cookie('clear_session_storage', '1', max_age=5)
-            return response
 
 
     return render(request, 'home.html', {'exercises':    exercises, 'selected_id':  exercise_id, 'exercise': exercise, 'exercise_content': exercise_content, 'result': result, 'saved_texts': saved_texts})
 
-def save_text(request):
-    if request.method == "POST":
-        instructions = request.POST.get("exercise_content", "")
-        exercise_id = request.POST.get("exercise_id", None)  # Récupérer l'ID de l'exercice
-        exercise = get_object_or_404(Exercise, pk=exercise_id)
-        text = request.POST.get("text", "")
-        score = 0
-        saved = SavedText.objects.create(text=text, score=score, instructions=instructions, exercise = exercise, student=request.user)
-         # Attach all relevant TypingEvents to this SavedText
-        TypingEvent.objects.filter(
-            student=request.user,
-            exercise_id=exercise_id,
-            saved_text__isnull=True  # optional: only those not yet linked
-        ).update(saved_text=saved)
-        return redirect('process_report', saved.id) 
-    return JsonResponse({"error": "Méthode non autorisée"}, status=400)
+
 
 
 def delete_text(request, text_id):
@@ -288,85 +110,7 @@ def update_list(request):
     return JsonResponse({'success': False})
 
 
-# Supposons que tu aies une fonction d'analyse de texte
-def analyze_text(text):
-    # Ta logique d'analyse du texte ici
-    # Retourne le texte corrigé ou les résultats de l'analyse
-    return {
-        'corrected_text': text,  # Juste un exemple, remplace cela par ta logique réelle
-        'score': 85  # Exemple de score, à remplacer par ton propre calcul
-    }
 
-def analyze(request):
-    if request.method == 'POST':
-        # Récupérer les données envoyées par la requête
-        text = request.POST.get('text', None)  # Si 'text' n'est pas trouvé, il renvoie None
-        list_position = request.POST.get('list_position', '')  # Position du curseur
-        list_progression = request.POST.get('list_progression', '')  # Progression du texte
-
-        # Ajouter des logs pour vérifier les paramètres
-        print(f"Texte reçu: {text}")
-        print(f"Position du curseur: {list_position}")
-        print(f"Progression du texte: {list_progression}")
-
-        # Vérifier si 'text' est valide
-        if not text or not isinstance(text, str):
-            return JsonResponse({'error': 'Texte invalide ou vide'}, status=400)
-
-        # Appeler la fonction correct_text pour analyser le texte
-        result = correct_text(text)
-
-        # Passer les résultats au template 'home.html' au lieu de renvoyer JSON
-        return render(request, 'home.html', {
-            'result': result,
-            'list_position': list_position,
-            'list_progression': list_progression
-        })
-    
-    return JsonResponse({"error": "Méthode non autorisée"}, status=405)
-
-
-def save_user_typing(request):
-    if request.method == "POST":
-        text = request.POST.get('text', '')
-        cursor_position = request.POST.get('cursor_position', 0)
-        session_id = request.user.username if request.user.is_authenticated else "anonymous"  # ✅ ligne ajoutée
-
-
-        # Sauvegarde les frappes dans la base de données
-        user_typing = UserTyping.objects.create(
-            text=text,
-            cursor_position=cursor_position,
-            session_id=session_id,
-        )
-        
-        return JsonResponse({'status': 'success'})
-    
-    return JsonResponse({'status': 'error'})
-
-@csrf_exempt  # Désactiver temporairement CSRF pour le test
-def save_typing_event(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            session_id = data.get("session_id")
-            cursor_position = data.get("cursor_position")
-            text_progression = data.get("text_progression")
-
-            # Sauvegarder l'événement de frappe
-            typing_event = UserTyping(
-                session_id=session_id,
-                cursor_position=cursor_position,
-                text_progression=text_progression
-            )
-            typing_event.save()
-
-            return JsonResponse({"message": "Frappes enregistrées !"}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"message": "Méthode non autorisée"}, status=405)
 
 @login_required
 def add_exercise(request):
@@ -398,15 +142,7 @@ def delete_exercise(request, pk):
     return redirect('accounts:professor_dashboard')
 
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views import View
-from django.http import JsonResponse
-import json
-from datetime import datetime
-from .models import TypingEvent, Exercise
-from .schemas import DecodedData
-from .utils import compute_diff
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SaveTypingDataView(View):
@@ -432,20 +168,27 @@ class SaveTypingDataView(View):
             return JsonResponse({'error': 'Exercise not found'}, status=404)
 
         user = request.user
-
+        saved = SavedText.objects.create(
+            text=data.final_text,
+            score=0,
+            instructions=data.context,
+            exercise_id = data.exercise_id,
+            student_id=request.user.id
+            )
         events = []
         prev = None  # pour identifier la toute première itération
         for ts_ms, txt, cur in zip(data.time_list, data.text_list, data.cursor_list):
+
             try:
                 if prev is None:
                     diff = {'action': 'insert'}  # première itération, on considère comme insertion
                 else:
-                    diff = compute_diff(prev, txt)
-                    if diff['action'] == 'skip':
-                        prev = txt
-                        continue
-                    print(f"Diff trouvé: {diff}")
-
+                    #diff = compute_diff(prev, txt)
+                    #if diff['action'] == 'skip':
+                    #    prev = txt
+                    #    continue
+                    #print(f"Diff trouvé: {diff}")
+                    diff['action'] = "skip"
                 event = TypingEvent(
                     student         = user,
                     exercise       = exo,
@@ -453,6 +196,7 @@ class SaveTypingDataView(View):
                     cursor_position = int(cur),
                     action          = diff['action'],
                     text_progression= txt,
+                    saved_text      = saved
                 )
                 events.append(event)
                 prev = txt  # mise à jour ici à chaque tour !
@@ -464,8 +208,24 @@ class SaveTypingDataView(View):
 
         if events:
             TypingEvent.objects.bulk_create(events)
-            print(f"{len(events)} événements enregistrés")
-            return JsonResponse({'status': 'success', 'saved_events': len(events)})
+
+            # Start background analysis thread here
+            threading.Thread(
+                target=run_analysis_in_background,
+                args=(saved.id, user.id),
+                daemon=True  # optional but recommended
+            ).start()
+
+            # Return the URL to the questionnaire page, passing the saved text ID in session or query param
+            request.session['text_id'] = saved.id
+            questionnaire_url = reverse('questionnaire')
+
+            return JsonResponse({
+                'status': 'success',
+                'saved_events': len(events),
+                'redirect_url': questionnaire_url
+            })
+
         else:
             print("Aucun événement à enregistrer")
             return JsonResponse({'error': 'No events created'}, status=400)
@@ -484,12 +244,7 @@ class TypingEventListView(ListView):
                 .select_related('student', 'exercise')
                 .order_by('-timestamp'))
     
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponse
-from collections import defaultdict
-import json
-from .models import TypingEvent
-from .schemas import DecodedData
+
 
 @login_required
 def export_typingevents_for_student(request):
@@ -566,11 +321,18 @@ def annotate_view(request):
         #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
         return render(request, 'text_analysis/annotate.html', context)
     
-
+"""
 @login_required
 def process_report_view(request, id):
     
     if request.method == 'GET':
+        cache_key = f'process_report_{id}'
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            print("Données récupérées du cache")
+            return render(request, 'text_analysis/process_report.html', cached_data)
+        
+
         my_text = get_object_or_404(SavedText, id=id)
         print(my_text)
         keystrokes = TypingEvent.objects.filter(saved_text=id).order_by('id')
@@ -597,6 +359,101 @@ def process_report_view(request, id):
             text_id=str(my_text.id)
         )
         revisions = characterize_revisions(decoded_data)
-        report = generate_process_report(revisions)
-        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_list': text_list, 'time_list': time_list, 'cursor_list': cursor_list, 'process_report': report} # TODO : handle multiple trials of the same exercise
+        report = generate_process_report(revisions, decoded_data)
+        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_list': text_list, 'time_list': time_list, 'cursor_list': cursor_list, 'process_report': report, 'graph_info': report.get("graph_info", [])} # TODO : handle multiple trials of the same exercise
+        cache.set(cache_key, context, timeout=86400)
+        #return render(request, 'text_analysis/process_report.html', context)
+        return redirect('questionnaire')"""
+
+@login_required
+def process_report_view(request, id):
+    cache_key = f'process_report_{id}'
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        return render(request, 'text_analysis/process_report.html', cached_data)
+
+    my_text = get_object_or_404(SavedText, id=id)
+    if my_text.analysis_report:
+        # Build context from saved report
+        context = {
+            'text': my_text.text,
+            'instructions': my_text.instructions,
+            'process_report': my_text.analysis_report,
+            # You may want to reconstruct time_list, text_list, cursor_list if you saved them
+            # or skip them if not needed for rendering.
+            'graph_info': my_text.analysis_report.get("graph_info", [])
+        }
+        cache.set(cache_key, context, timeout=86400)
         return render(request, 'text_analysis/process_report.html', context)
+
+    # Still processing or no data — show waiting page
+    return render(request, 'text_analysis/waiting.html', {'text_id': id})
+
+
+def run_analysis_in_background(id, user_id):
+    my_text = SavedText.objects.get(id=id)
+    keystrokes = TypingEvent.objects.filter(saved_text=id).order_by('id')
+    time_list = [k.timestamp for k in keystrokes]
+    text_list = [k.text_progression for k in keystrokes]
+    cursor_list = [k.cursor_position for k in keystrokes]
+
+    decoded_data = DecodedData(
+        final_text=my_text.text,
+        context=my_text.instructions,
+        text_type="",
+        time_list=time_list,
+        text_list=text_list,
+        cursor_list=cursor_list,
+        student_id=str(user_id),
+        exercise_id=str(my_text.exercise_id),
+        text_id=str(my_text.id)
+    )
+    revisions = characterize_revisions(decoded_data)
+    report = generate_process_report(revisions, decoded_data)
+
+    cache_key = f'process_report_{id}'
+    context = {
+        'text': my_text.text,
+        'instructions': my_text.instructions,
+        'text_list': text_list,
+        'time_list': time_list,
+        'cursor_list': cursor_list,
+        'process_report': report,
+        'graph_info': report.get("graph_info", [])
+    }
+        # Save report in DB
+    my_text.analysis_report = report
+    my_text.save()
+    cache.set(cache_key, context, timeout=86400)
+    
+
+def submit_questionnaire(request):
+    if request.method == 'POST':
+        text_id = request.session.get('text_id')
+        if not text_id:
+            return HttpResponse("No associated text found.", status=400)
+
+        saved_text = get_object_or_404(SavedText, pk=text_id)
+        # Create a new Questionnaire entry
+        Questionnaire.objects.create(
+            saved_text=saved_text,
+            overall_approach=request.POST.get('overall_approach', ''),
+            changes=request.POST.get('changes', ''),
+            clarity=request.POST.get('clarity', ''),
+            organization=request.POST.get('organization', ''),
+            grammar=request.POST.get('grammar', ''),
+            style=request.POST.get('style', ''),
+            time_use=request.POST.get('time_use', ''),
+            revision_continuous=request.POST.get('revision_continuous', ''),
+            revision_improvements=request.POST.get('revision_improvements', ''),
+        )
+        return redirect('process_report', id=request.session.get('text_id'))  
+
+    return render(request, 'questionnaire_form.html')
+
+#small API for the waiting html page
+@login_required
+def analysis_status_api(request, id):
+    status = cache.get(f'analysis_status_{id}', 'not_found')
+    return JsonResponse({'status': status})

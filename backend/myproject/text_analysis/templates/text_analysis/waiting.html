@@ -1,0 +1,77 @@
+<!-- updated view.html extending base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Retours sur la révision</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+  <header class="bg-primary text-white text-center py-3">
+    <h1>Retours sur la révision</h1>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+
+<main class="container my-4">
+    <div style="text-align: center; padding-top: 50px;">
+        <h2>🔄 Your text is being analyzed...</h2>
+        <p>Please wait a moment. This page will automatically update when your report is ready.</p>
+        <div id="spinner" style="margin-top: 20px;">
+            <svg width="50" height="50" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#007BFF" stroke-width="4" 
+                        stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
+                    <animateTransform attributeName="transform" type="rotate"
+                                    from="0 25 25" to="360 25 25"
+                                    dur="1s" repeatCount="indefinite" />
+                </circle>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+    (function pollStatus() {
+        fetch("{% url 'analysis_status_api' text_id %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'done') {
+                    window.location.href = "{% url 'process_report' text_id %}";
+                } else {
+                    setTimeout(pollStatus, 3000); // check again in 3 seconds
+                }
+            })
+            .catch(() => setTimeout(pollStatus, 5000)); // retry after 5s if error
+    })();
+    </script>
+</main>
+
+
+
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

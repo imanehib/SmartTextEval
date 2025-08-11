@@ -25,6 +25,7 @@ class SavedText(models.Model):
     instructions = models.TextField(blank=True, null=True)  # Instructions pour l'exercice
     exercise = models.ForeignKey(Exercise, null=True, blank=True, on_delete=models.CASCADE)
     student = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='student_saved_texts')
+    report_data = models.JSONField(null=True, blank=True)
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
 
@@ -62,3 +63,19 @@ class SavedAnnotation(models.Model):
         return f"Annotation de {self.user.username} pour l'exercice {self.exercise.title}"
 
 
+class Questionnaire(models.Model):
+    saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="questionnaires")
+    overall_approach = models.TextField()
+    changes = models.TextField()
+    clarity = models.CharField(max_length=10)
+    organization = models.CharField(max_length=10)
+    grammar = models.CharField(max_length=10)
+    style = models.CharField(max_length=10)
+    time_use = models.TextField()
+    revision_continous = models.TextField()
+    revision_improvements = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Questionnaire #{self.id} - {self.submitted_at.strftime('%Y-%m-%d')}"
+    
