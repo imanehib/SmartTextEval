@@ -13,7 +13,7 @@
 <body class="bg-light">
 
   <header class="bg-primary text-white text-center py-3">
-    <h1>Retours sur la révision</h1>
+    <h1>Evaluation</h1>
   </header>
 
   <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
@@ -36,8 +36,8 @@
 
 <main class="container my-4">
     <div style="text-align: center; padding-top: 50px;">
-        <h2>🔄 Your text is being analyzed...</h2>
-        <p>Please wait a moment. This page will automatically update when your report is ready.</p>
+        <h2>🔄 Votre texte est en cours d'analyse...</h2>
+        <p>Veuillez attendre quelques courts instants avant de recevoir votre feedback.</p>
         <div id="spinner" style="margin-top: 20px;">
             <svg width="50" height="50" viewBox="0 0 50 50">
                 <circle cx="25" cy="25" r="20" fill="none" stroke="#007BFF" stroke-width="4" 
@@ -52,7 +52,7 @@
 
     <script>
     (function pollStatus() {
-        fetch("{% url 'analysis_status_api' text_id %}")
+        fetch("{% url 'text_analysis:analysis_status_api' text_id %}")
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'done') {

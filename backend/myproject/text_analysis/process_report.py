@@ -18,9 +18,7 @@ from openai import OpenAI
 import os
 
 
-
-
-os.environ["OPENAI_API_KEY"] = ""
+api_key = os.getenv("API_KEY")
 client = OpenAI() 
 
 @shared_task

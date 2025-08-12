@@ -38,7 +38,7 @@
 
     
 
-<form action="{% url 'submit_questionnaire' %}" method="post" style="max-width: 700px; margin: auto; font-family: Arial, sans-serif;">
+<form action="{% url 'text_analysis:submit_questionnaire' %}" method="post" style="max-width: 700px; margin: auto; font-family: Arial, sans-serif;">
     {% csrf_token %}
     <h2>Réflexion post-écriture</h2>
     <p>Maintenant que vous avez soumis votre essai, prenez le temps de répondre aux questions ci-dessous concernant votre stratégie d'écriture. La réponse à ces questions ne sera pas évaluée, il n'y a pas de bonne réponse attendue. 
@@ -102,8 +102,8 @@
     <textarea id="time-use" name="time_use" rows="4" style="width:100%;" placeholder="As-tu fait un brouillon? As-tu révisé tout le long de ta rédaction, juste à la fin....?"></textarea><br><br>
 
     <!-- 5. Self-assessment -->
-    <label for="revision-continuous"><strong>5. As-tu l'impression d'avoir interrompu ta tâche ou as-tu travaillé de manière constante?</strong></label><br>
-    <textarea id="revision-continuous" name="revision_continuous" rows="3" style="width:100%;"></textarea><br><br>
+    <label for="revision-continous"><strong>5. As-tu l'impression d'avoir interrompu ta tâche ou as-tu travaillé de manière constante?</strong></label><br>
+    <textarea id="revision-continous" name="revision_continous" rows="3" style="width:100%;"></textarea><br><br>
 
     <label for="revision-improvements"><strong>6. Que ferais-tu pour améliorer ta révision?</strong></label><br>
     <textarea id="revision-improvements" name="revision_improvements" rows="3" style="width:100%;"></textarea><br><br>

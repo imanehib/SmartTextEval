@@ -1,9 +1,11 @@
 import json
+import os
 import threading
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from ..text_analysis.process_report import characterize_revisions, generate_process_report
+from ..text_analysis.llm_quality_annotation import TextEvaluator
 
 
 
@@ -21,11 +23,9 @@ from .utils import compute_diff
 from .schemas import DecodedData
 from django.views.generic import ListView
 from .models import TypingEvent
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from .models import Exercise, SavedText
 import json
-from django.contrib.auth.decorators import login_required 
 from django.core.cache import cache
 from collections import defaultdict
 import logging
@@ -218,7 +218,7 @@ class SaveTypingDataView(View):
 
             # Return the URL to the questionnaire page, passing the saved text ID in session or query param
             request.session['text_id'] = saved.id
-            questionnaire_url = reverse('questionnaire')
+            questionnaire_url = reverse('text_analysis:submit_questionnaire')
 
             return JsonResponse({
                 'status': 'success',
@@ -374,7 +374,7 @@ def process_report_view(request, id):
         return render(request, 'text_analysis/process_report.html', cached_data)
 
     my_text = get_object_or_404(SavedText, id=id)
-    if my_text.analysis_report:
+    if my_text.report_data:
         # Build context from saved report
         context = {
             'text': my_text.text,
@@ -412,6 +412,12 @@ def run_analysis_in_background(id, user_id):
     revisions = characterize_revisions(decoded_data)
     report = generate_process_report(revisions, decoded_data)
 
+    # Create TextEvaluator instance and evaluate the text
+    api_key = os.getenv("API_KEY")
+    evaluator = TextEvaluator(api_key)
+    evaluation = evaluator.evaluate_text(decoded_data.final_text, decoded_data.context)
+    report["llm_evaluation"] = evaluation
+
     cache_key = f'process_report_{id}'
     context = {
         'text': my_text.text,
@@ -423,7 +429,7 @@ def run_analysis_in_background(id, user_id):
         'graph_info': report.get("graph_info", [])
     }
         # Save report in DB
-    my_text.analysis_report = report
+    my_text.report_data = report
     my_text.save()
     cache.set(cache_key, context, timeout=86400)
     
@@ -445,15 +451,16 @@ def submit_questionnaire(request):
             grammar=request.POST.get('grammar', ''),
             style=request.POST.get('style', ''),
             time_use=request.POST.get('time_use', ''),
-            revision_continuous=request.POST.get('revision_continuous', ''),
+            revision_continous=request.POST.get('revision_continous', ''),
             revision_improvements=request.POST.get('revision_improvements', ''),
         )
         return redirect('process_report', id=request.session.get('text_id'))  
 
-    return render(request, 'questionnaire_form.html')
+    return render(request, 'text_analysis/questionnaire.html')
 
 #small API for the waiting html page
 @login_required
 def analysis_status_api(request, id):
     status = cache.get(f'analysis_status_{id}', 'not_found')
     return JsonResponse({'status': status})
+

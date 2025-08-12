@@ -64,7 +64,7 @@ class SavedAnnotation(models.Model):
 
 
 class Questionnaire(models.Model):
-    saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="questionnaires")
+    saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="questionnaires", null=True)
     overall_approach = models.TextField()
     changes = models.TextField()
     clarity = models.CharField(max_length=10)
