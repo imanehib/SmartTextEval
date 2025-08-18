@@ -22,6 +22,7 @@ class SavedText(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # Ajoute ceci si ce champ n'est pas défini
     assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='teacher_assigned_texts')
+    n_annotated = models.PositiveBigIntegerField()
     instructions = models.TextField(blank=True, null=True)  # Instructions pour l'exercice
     exercise = models.ForeignKey(Exercise, null=True, blank=True, on_delete=models.CASCADE)
     student = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='student_saved_texts')
@@ -54,10 +55,10 @@ class TypingEvent(models.Model):
         return f"Event de {self.student} exo={self.exercise.id} pos={self.cursor_position} {self.action}"
 
 class SavedAnnotation(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    annotation = models.TextField(blank=True, null=True)  # Champ pour l'annotation
+    annotation = models.JSONField(blank=True, null=True)  # Champ pour l'annotation
 
     def __str__(self):
         return f"Annotation de {self.user.username} pour l'exercice {self.exercise.title}"

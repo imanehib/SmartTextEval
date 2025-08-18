@@ -56,9 +56,12 @@
   <header class="bg-primary text-white text-center py-3">
     <h1>Retours sur la révision</h1>
   </header>
-
+  
   <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
     <div class="container-fluid">
+      {% if user.role == 'professor' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
+      {% endif %}
       <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
       <div class="ms-auto">
         {% if user.is_authenticated %}
@@ -73,6 +76,7 @@
       </div>
     </div>
   </nav>
+  
 
 
 <main class="container my-4">

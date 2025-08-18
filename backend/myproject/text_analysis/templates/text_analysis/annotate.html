@@ -1,35 +1,159 @@
-{% extends "base.html" %}
-{% block title %}Annotation{% endblock %}
-{% block content %}
+<!-- updated view.html extending base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <h1>Annotation</h1>
+</head>
+
+<body class="bg-light">
+
+  <header class="bg-primary text-white text-center py-3">
+    <h1>Annotation</h1>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      {% if user.role == 'professor' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
+      {% endif %}
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+
+<main class="container my-4">
+
+
+
+  <h4>Consignes</h4>
+  <p> Les textes sont pré-notés par un modèle de langage sur différents critères pré-définis que vous découvrirez ci-dessous. Votre rôle est de vérifier si ces évaluations vous semblent correctes ou non, et de les corriger si besoin.
+    Les évaluations sont composées d'un score (allant de 1 à 4) et d'un retour textuel justifiant ce score (appelé feedback ci-dessous).
+    Vous pouvez choisir de ne corriger les deux, aucun ou même un des deux pour chaque critère d'évaluation.
+  </p>
 
 
 
   <form method="post"  action="{% url 'text_analysis:annotate_view'%}">
     {% csrf_token %}
-    <div class="form-group">
-      <label for="text">Texte à annoter</label>
-      <p id="text" name="text" required>{{ text }}</p>
+    <input type="hidden" name="text_id" value="{{ text_id }}">
+    <div class="sticky-top bg-white pt-2" style="top: 70px; z-index: 1000;">
+      <h4>Texte à annoter</h4>
+      <div class="form-group border border-dark p-3 rounded">
+        <p id ="instructions" name="instructions" required>{{ instructions }}</p>
+        <p id="text" name="text" required>{{ text }}</p>
+      </div>
     </div>
 
+  
+    {{ llm_report|json_script:"llm-report-data" }}
+    <script>
+      let llm_report = [];
+      try {
+        llm_report = JSON.parse(document.getElementById('llm-report-data').textContent);
+      } catch (e) {
+        console.error('Error parsing llm_report:', e);
+      }
+    </script>
+    
+    
     {% for label in labels %}
-    <div class="form-group">
-      <label for="grade{{ forloop.counter }}">{{ label }}</label>
-      <select id="grade{{ forloop.counter }}" name="grade{{ forloop.counter }}" class="form-control" required>
-        <option value="">Choisir une note</option>
-        <option value="1">1 - Faible</option>
-        <option value="2">2 - Moyen</option>
-        <option value="3">3 - Bon</option>
-      </select>
+    <div class="form-group mb-5 p-4 border rounded shadow-sm">
+      <h3 class="fw-bold mb-4">{{ label }}</h3>
+      <p>Voici la note et l'évaluation accordée par le modèle de langage, êtes-vous d'accord avec cette évaluation?</p>
+      
+      <div class="report-item"></div>
+      <input type="hidden" name="rubric_name{{ forloop.counter0 }}" value="{{ label }}">
+
+      <p>Score proposé: <span id="score{{ forloop.counter0 }}"></span></p>
+      <p>Feedback proposé: <span id="feedback{{ forloop.counter0 }}"></span></p>
+
+      <div class="form-check">
+      <input class="form-check-input" type="radio" name="agree_score{{ forloop.counter0 }}" id="agree_score{{ forloop.counter0 }}_yes" value="yes" required>
+      <label class="form-check-label" for="agree_score{{ forloop.counter0 }}_yes">D'accord avec le score</label>
+      </div>
+      <div class="form-check">
+      <input class="form-check-input" type="radio" name="agree_score{{ forloop.counter0 }}" id="agree_score{{ forloop.counter0 }}_no" value="no">
+      <label class="form-check-label" for="agree_score{{ forloop.counter0 }}_no">Pas d'accord avec le score</label>
+      </div>
+      <div class="form-group correction-score{{ forloop.counter0 }}" style="display:none;">
+      <label for="corrected_score{{ forloop.counter0 }}">Votre correction du score:</label>
+      <input type="number" class="form-control" name="corrected_score{{ forloop.counter0 }}" min="0" max="100">
+      </div>
+
+      <div class="form-check">
+      <input class="form-check-input" type="radio" name="agree_feedback{{ forloop.counter0 }}" id="agree_feedback{{ forloop.counter0 }}_yes" value="yes" required>
+      <label class="form-check-label" for="agree_feedback{{ forloop.counter0 }}_yes">D'accord avec le feedback</label>
+      </div>
+      <div class="form-check">
+      <input class="form-check-input" type="radio" name="agree_feedback{{ forloop.counter0 }}" id="agree_feedback{{ forloop.counter0 }}_no" value="no">
+      <label class="form-check-label" for="agree_feedback{{ forloop.counter0 }}_no">Pas d'accord avec le feedback</label>
+      </div>
+      <div class="form-group correction-feedback{{ forloop.counter0 }}" style="display:none;">
+      <label for="corrected_feedback{{ forloop.counter0 }}">Votre correction du feedback:</label>
+      <textarea class="form-control" name="corrected_feedback{{ forloop.counter0 }}" rows="3"></textarea>
+      </div>
+      <input type="hidden" name="original_score{{ forloop.counter0 }}" id="original_score{{ forloop.counter0 }}">
+      <input type="hidden" name="original_feedback{{ forloop.counter0 }}" id="original_feedback{{ forloop.counter0 }}">
+      </div>
     </div>
     {% endfor %}
 
-    <button type="submit" class="btn">Enregistrer</button>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+      llm_report.forEach((report, index) => {
+      document.getElementById(`score${index}`).textContent = report.score;
+      document.getElementById(`feedback${index}`).textContent = report.feedback;
+      document.getElementById(`original_score${index}`).value = report.score;
+      document.getElementById(`original_feedback${index}`).value = report.feedback;
+
+      // Add event listeners for radio buttons
+      const scoreRadios = document.querySelectorAll(`input[name="agree_score${index}"]`);
+      scoreRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelector(`.correction-score${index}`).style.display = 
+        this.value === 'no' ? 'block' : 'none';
+      });
+      });
+
+      const feedbackRadios = document.querySelectorAll(`input[name="agree_feedback${index}"]`);
+      feedbackRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelector(`.correction-feedback${index}`).style.display = 
+        this.value === 'no' ? 'block' : 'none';
+      });
+      });
+      });
+      });
+    </script>
+
+    <button type="submit" class="btn btn-primary mt-4">Enregistrer</button>
     
     <a href="{% url 'accounts:professor_dashboard' %}" class="btn-return">← Retour</a>
   </form>
 
-  
+</main>
 
-{% endblock %}
+
+
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

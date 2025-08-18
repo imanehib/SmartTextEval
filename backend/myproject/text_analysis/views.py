@@ -4,6 +4,8 @@ import threading
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
+from ..accounts.forms import CustomUser
+
 from ..text_analysis.process_report import characterize_revisions, generate_process_report
 from ..text_analysis.llm_quality_annotation import TextEvaluator
 
@@ -34,7 +36,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
+from dotenv import load_dotenv
+load_dotenv()
 
 
 @login_required
@@ -173,7 +176,8 @@ class SaveTypingDataView(View):
             score=0,
             instructions=data.context,
             exercise_id = data.exercise_id,
-            student_id=request.user.id
+            student_id=request.user.id,
+            n_annotated = 0
             )
         events = []
         prev = None  # pour identifier la toute première itération
@@ -289,37 +293,69 @@ def export_typingevents_for_student(request):
 
 @login_required
 def annotate_view(request):
-    
+    annotation_expected = 25
     if request.method == 'POST':
-        text = request.POST.get('text', '')
-        grades = []
-        for i in range(1, 5):
-            grade = request.POST.get(f'grade{i}')
-            if not grade:
-                messages.error(request, "Tous les critères doivent être notés.")
-                return redirect('text_analysis:annotate_view')
-            grades.append(grade)
+        text_id = request.POST.get('text_id')
+        my_text = get_object_or_404(SavedText, pk=text_id)
+        # Detect how many items are in the LLM report
+        index = 0
+        annotations = []
+        report = []
+        while True:
+            agree_score = request.POST.get(f"agree_score{index}")
+            if agree_score is None:
+                break  # no more indexes
+            
+            # Get values for this index
+            rubric_name = request.POST.get(f"rubric_name{index}")
+            original_score = request.POST.get(f"original_score{index}")
+            corrected_score = request.POST.get(f"corrected_score{index}")
+            original_feedback = request.POST.get(f"original_feedback{index}")
+            corrected_feedback = request.POST.get(f"corrected_feedback{index}")
+            agree_feedback = request.POST.get(f"agree_feedback{index}")
+            # Add to annotations array
+            annotations.append({
+            "original_score": original_score,
+            "agree_score": agree_score,
+            "corrected_score": corrected_score,
+            "original_feedback": original_feedback,
+            "agree_feedback": agree_feedback,
+            "corrected_feedback": corrected_feedback
+            })
 
-        annotation = "|".join(grades)
-
-        if not text or not annotation:
-            messages.error(request, "Le texte et l'annotation ne peuvent pas être vides.")
-            return redirect('text_analysis:annotate_view')
+            # Add to report array based on agreement
+            report.append({
+            "rubric": rubric_name,
+            "score": corrected_score if agree_score == "false" else original_score,
+            "feedback": corrected_feedback if agree_feedback == "false" else original_feedback
+            })
+            
+            index += 1
+        
+        my_text.report_data = report
+        my_text.assigned_to = request.user
+        my_text.n_annotated+=1
+        my_text.save()
 
         SavedAnnotation.objects.create(
-            student=request.user,
-            text=text,
-            annotation=annotation
+            teacher=request.user,
+            text=my_text,
+            annotation=annotations
         )
         messages.success(request, "Annotation sauvegardée avec succès.")
+        if request.user.role == CustomUser.PROFESSOR:
+            request.user.n_annotated += 1
+            request.user.save()
         return redirect('text_analysis:annotate_view')
     else:
-        my_text = get_object_or_404(SavedText, pk=49)#change the pk to the one you want to annotate
-        labels = ["Clarté", "Organisation", "Pertinence", "Orthographe"]
-        context = {'text': my_text.text, 'labels': labels}
-        
-        #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
-        return render(request, 'text_analysis/annotate.html', context)
+        if request.user.role == CustomUser.PROFESSOR:
+            if request.user.n_annotated<annotation_expected:
+                my_text = SavedText.objects.filter(n_annotated=0).order_by('?').first() #on sélectionne un texte non annoté
+                labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
+                context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+                
+                #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
+                return render(request, 'text_analysis/annotate.html', context)
     
 """
 @login_required
@@ -379,10 +415,11 @@ def process_report_view(request, id):
         context = {
             'text': my_text.text,
             'instructions': my_text.instructions,
-            'process_report': my_text.analysis_report,
+            'process_report': my_text.report_data,
             # You may want to reconstruct time_list, text_list, cursor_list if you saved them
             # or skip them if not needed for rendering.
-            'graph_info': my_text.analysis_report.get("graph_info", [])
+            #TODO
+            'graph_info': my_text.report_data.get("graph_info", [])
         }
         cache.set(cache_key, context, timeout=86400)
         return render(request, 'text_analysis/process_report.html', context)
@@ -413,9 +450,10 @@ def run_analysis_in_background(id, user_id):
     report = generate_process_report(revisions, decoded_data)
 
     # Create TextEvaluator instance and evaluate the text
-    api_key = os.getenv("API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY")
     evaluator = TextEvaluator(api_key)
     evaluation = evaluator.evaluate_text(decoded_data.final_text, decoded_data.context)
+    logger.info(evaluation)
     report["llm_evaluation"] = evaluation
 
     cache_key = f'process_report_{id}'

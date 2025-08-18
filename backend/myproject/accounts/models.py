@@ -15,5 +15,7 @@ class CustomUser(AbstractUser):
 
     teaching_subject = models.CharField(max_length=100, null=True, blank=True)
 
+    n_annotated = models.PositiveIntegerField(default=0)
+
     def __str__(self):
         return self.username

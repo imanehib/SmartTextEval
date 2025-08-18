@@ -18,8 +18,6 @@ from openai import OpenAI
 import os
 
 
-api_key = os.getenv("API_KEY")
-client = OpenAI() 
 
 @shared_task
 def characterize_revisions(decoded_data: DecodedData)-> List[Revision]:
@@ -34,6 +32,9 @@ def characterize_revisions(decoded_data: DecodedData)-> List[Revision]:
     # Extract revisions from the decoded data
     revisions = extract_revisions(decoded_data.text_list, decoded_data.cursor_list)
     # Classify the revisions
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=api_key) 
     for revision in revisions:
         revision.classify(client, "asst_67wsBtBez3b89q7vK8K2LxXv")
     return revisions
