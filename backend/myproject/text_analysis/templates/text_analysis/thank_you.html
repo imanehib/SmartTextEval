@@ -21,6 +21,9 @@
       {% if user.role == 'professor' %}
       <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
       {% endif %}
+      {% if user.role == 'student' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:student_dashboard' %}">Accueil</a>
+      {% endif %}
       <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
       <div class="ms-auto">
         {% if user.is_authenticated %}

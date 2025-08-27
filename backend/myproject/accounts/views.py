@@ -4,7 +4,7 @@ from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from .forms import StudentSignUpForm, ProfessorSignUpForm
 from django.urls import reverse_lazy
-from ..text_analysis.models import Exercise
+from ..text_analysis.models import Exercise, SavedText
 from django.http import HttpResponseForbidden
 
 # Récupère le modèle utilisateur personnalisé
@@ -20,7 +20,7 @@ class CustomLoginView(LoginView):
         if self.request.user.role == 'professor':
             return reverse_lazy('accounts:professor_dashboard')
         elif self.request.user.role == 'student':
-            return reverse_lazy('text_analysis:home')
+            return reverse_lazy('accounts:student_dashboard')
         return reverse_lazy('index')
 
     
@@ -57,7 +57,7 @@ def professor_signup(request):
             user.role = CustomUser.PROFESSOR  # ou simplement 'professor'
             user.save()
             login(request, user)
-            return redirect('text_analysis:home')
+            return redirect('accounts:professor_dashboard')
     else:
         form = ProfessorSignUpForm()
     return render(request, 'registration/professor_signup.html', {'form': form})
@@ -75,3 +75,18 @@ def professor_dashboard(request):
     return render(request, 'professor_dashboard.html', {
         'exercises': exercises
     })
+
+@login_required
+def student_dashboard(request):
+    if request.user.role != 'student':
+        return HttpResponseForbidden("Accès interdit.")
+    
+    exercise = Exercise.objects.filter(session=request.user.session).first()
+    saved_text = SavedText.objects.filter(exercise=exercise).first()
+    if saved_text is not None:
+        if saved_text.n_annotated >= 1:
+            request.user.feedback_ready = request.user.session  # si l'annotation a été faite (sous-entend que l'analyse aussi) alors le feedback est prêt
+    else:
+        request.user.feedback_ready = 0
+    request.user.save()
+    return render(request, 'student_dashboard.html')

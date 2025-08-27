@@ -6,7 +6,8 @@ from .views import (
     signup_choice,
     student_signup,
     professor_signup,
-    professor_dashboard
+    professor_dashboard,
+    student_dashboard
 )
 
 app_name = 'accounts'
@@ -18,4 +19,5 @@ urlpatterns = [
     path('signup/student/', student_signup, name='student_signup'),
     path('signup/professor/', professor_signup, name='professor_signup'),
     path('professor-dashboard/', professor_dashboard, name='professor_dashboard'),
+    path('student-dashboard/', student_dashboard, name='student_dashboard'),
 ]

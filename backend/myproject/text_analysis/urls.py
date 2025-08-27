@@ -24,9 +24,12 @@ urlpatterns = [
     #path('export_all_sessions/', views.export_all_sessions_for_logged_student, name='export_all_sessions'),
     path('export_typingevents/', views.export_typingevents_for_student, name='export_typingevents'),
     path('annotate/', annotate_view, name='annotate_view'),
-    path('process_report/', process_report_view, name='process_report'),
+    path('process_report/<int:id>', process_report_view, name='process_report'),
     path('questionnaire/', views.submit_questionnaire, name='submit_questionnaire'),
     path('analysis-status/<int:id>/', views.analysis_status_api, name='analysis_status_api'),
+    path("thank-you/", views.thank_you, name="thank_you"),
+    path('feedback/', views.feedback_view, name="feedback"),
+    path('questionnaire_report/', views.questionnaire_report, name="questionnaire_report")
 
 ]
 

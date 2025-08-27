@@ -115,7 +115,13 @@ python manage.py runserver
 
 Open in your browser: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
+
+### ▶️ Run again analysis
+
+python manage.py reanalyze_empty
+
 ---
+
 
 ## 🧠 Writing Behavior Analysis & JSON Export
 

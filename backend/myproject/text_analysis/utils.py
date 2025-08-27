@@ -1,3 +1,7 @@
+from sqlalchemy import Null
+
+
+
 def compute_diff(old: str, new: str):
     """
     Tente de détecter un seul caractère inséré ou supprimé entre old et new.

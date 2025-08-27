@@ -3,8 +3,9 @@ import os
 import threading
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from sqlalchemy import Null
 
-from ..accounts.forms import CustomUser
+from ..accounts.models import CustomUser
 
 from ..text_analysis.process_report import characterize_revisions, generate_process_report
 from ..text_analysis.llm_quality_annotation import TextEvaluator
@@ -43,11 +44,12 @@ load_dotenv()
 @login_required
 def home(request):
     # 1. Récupérer tous les exercices
-    exercises = Exercise.objects.all()
+    exercise = Exercise.objects.filter(session=request.user.session + 1).first()
 
-    # 2. Récupérer, si présent, l'exercice sélectionné en GET
-    exercise_id  = request.GET.get('exercise')
-    exercise = None
+    if exercise:
+        exercise_id = exercise.id
+    else:
+        exercise_id = None
     exercise_content = ''
     if exercise_id:
         try:
@@ -63,7 +65,7 @@ def home(request):
 
 
 
-    return render(request, 'home.html', {'exercises':    exercises, 'selected_id':  exercise_id, 'exercise': exercise, 'exercise_content': exercise_content, 'result': result, 'saved_texts': saved_texts})
+    return render(request, 'home.html', {'selected_id':  exercise_id, 'exercise': exercise, 'exercise_content': exercise_content, 'result': result, 'saved_texts': saved_texts})
 
 
 
@@ -177,7 +179,8 @@ class SaveTypingDataView(View):
             instructions=data.context,
             exercise_id = data.exercise_id,
             student_id=request.user.id,
-            n_annotated = 0
+            n_annotated = 0,
+            session= user.session
             )
         events = []
         prev = None  # pour identifier la toute première itération
@@ -222,12 +225,17 @@ class SaveTypingDataView(View):
 
             # Return the URL to the questionnaire page, passing the saved text ID in session or query param
             request.session['text_id'] = saved.id
-            questionnaire_url = reverse('text_analysis:submit_questionnaire')
+            user = CustomUser.objects.get(id=request.user.id)
+            #ceux qui reçoivent le feedback avec process report ont aussi le questionnaire sur la révision
+            if user.group=="complet":
+                next_url = reverse('text_analysis:submit_questionnaire')
+            else:
+                next_url = reverse('text_analysis:thank_you')
 
             return JsonResponse({
                 'status': 'success',
                 'saved_events': len(events),
-                'redirect_url': questionnaire_url
+                'redirect_url': next_url
             })
 
         else:
@@ -332,7 +340,7 @@ def annotate_view(request):
             
             index += 1
         
-        my_text.report_data = report
+        my_text.report_data['llm_evaluation'] = report
         my_text.assigned_to = request.user
         my_text.n_annotated+=1
         my_text.save()
@@ -351,12 +359,15 @@ def annotate_view(request):
         if request.user.role == CustomUser.PROFESSOR:
             if request.user.n_annotated<annotation_expected:
                 my_text = SavedText.objects.filter(n_annotated=0).order_by('?').first() #on sélectionne un texte non annoté
-                labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
-                context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+                if my_text is not None:
+                    labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
+                    context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
                 
-                #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
-                return render(request, 'text_analysis/annotate.html', context)
-    
+                    #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
+                    return render(request, 'text_analysis/annotate.html', context)
+                else:
+                    return redirect('accounts:professor_dashboard')
+
 """
 @login_required
 def process_report_view(request, id):
@@ -403,12 +414,7 @@ def process_report_view(request, id):
 
 @login_required
 def process_report_view(request, id):
-    cache_key = f'process_report_{id}'
-    cached_data = cache.get(cache_key)
-
-    if cached_data:
-        return render(request, 'text_analysis/process_report.html', cached_data)
-
+    
     my_text = get_object_or_404(SavedText, id=id)
     if my_text.report_data:
         # Build context from saved report
@@ -421,15 +427,29 @@ def process_report_view(request, id):
             #TODO
             'graph_info': my_text.report_data.get("graph_info", [])
         }
-        cache.set(cache_key, context, timeout=86400)
         return render(request, 'text_analysis/process_report.html', context)
 
     # Still processing or no data — show waiting page
     return render(request, 'text_analysis/waiting.html', {'text_id': id})
 
+@login_required
+def feedback_view(request):
+    
+    my_text = SavedText.objects.filter(student=request.user.id, session=request.user.session-1).first() #on sélectionne un texte qui doit correspondre à la dernière session d'écriture et à l'étudiant concerné
+    #my_text = get_object_or_404(SavedText, pk=2)
+    labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
+    context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+                
+    # Still processing or no data — show waiting page
+    request.user.feedback_seen = request.user.session
+    request.user.save()
+    return render(request, 'text_analysis/feedback.html', context)
+
 
 def run_analysis_in_background(id, user_id):
+    print(id)
     my_text = SavedText.objects.get(id=id)
+    user = CustomUser.objects.get(id=user_id)
     keystrokes = TypingEvent.objects.filter(saved_text=id).order_by('id')
     time_list = [k.timestamp for k in keystrokes]
     text_list = [k.text_progression for k in keystrokes]
@@ -446,14 +466,16 @@ def run_analysis_in_background(id, user_id):
         exercise_id=str(my_text.exercise_id),
         text_id=str(my_text.id)
     )
-    revisions = characterize_revisions(decoded_data)
-    report = generate_process_report(revisions, decoded_data)
-
+    if user.group!="contrôle":
+        revisions = characterize_revisions(decoded_data)
+        report = generate_process_report(revisions, decoded_data)
+    else:
+        report = dict()
     # Create TextEvaluator instance and evaluate the text
     api_key = os.getenv("OPENAI_API_KEY")
     evaluator = TextEvaluator(api_key)
     evaluation = evaluator.evaluate_text(decoded_data.final_text, decoded_data.context)
-    logger.info(evaluation)
+    #logger.info(evaluation)
     report["llm_evaluation"] = evaluation
 
     cache_key = f'process_report_{id}'
@@ -471,6 +493,8 @@ def run_analysis_in_background(id, user_id):
     my_text.save()
     cache.set(cache_key, context, timeout=86400)
     
+
+
 
 def submit_questionnaire(request):
     if request.method == 'POST':
@@ -492,9 +516,21 @@ def submit_questionnaire(request):
             revision_continous=request.POST.get('revision_continous', ''),
             revision_improvements=request.POST.get('revision_improvements', ''),
         )
-        return redirect('process_report', id=request.session.get('text_id'))  
+        return redirect('text_analysis:thank_you')  
 
     return render(request, 'text_analysis/questionnaire.html')
+
+@login_required
+def questionnaire_report(request):
+
+    my_text = SavedText.objects.filter(student=request.user, session=request.user.session-1).order_by('?').first() #on sélectionne un texte non annoté
+
+    questionnaire = get_object_or_404(Questionnaire, saved_text=my_text)
+    
+    return render(request, 'text_analysis/questionnaire_report.html', {
+        'questionnaire': questionnaire,
+        'saved_text': my_text
+    })
 
 #small API for the waiting html page
 @login_required
@@ -502,3 +538,9 @@ def analysis_status_api(request, id):
     status = cache.get(f'analysis_status_{id}', 'not_found')
     return JsonResponse({'status': status})
 
+@login_required
+def thank_you(request):
+    user = CustomUser.objects.get(id=request.user.id)
+    user.session = user.feedback_seen + 1
+    user.save()
+    return render(request, "text_analysis/thank_you.html")

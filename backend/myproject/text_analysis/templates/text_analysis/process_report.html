@@ -62,6 +62,9 @@
       {% if user.role == 'professor' %}
       <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
       {% endif %}
+      {% if user.role == 'student' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:student_dashboard' %}">Accueil</a>
+      {% endif %}
       <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
       <div class="ms-auto">
         {% if user.is_authenticated %}
@@ -140,6 +143,14 @@
 <h4>Indicateurs</h4>
 
 
+
+<div class="text-center my-4">
+      <a href="{% url 'accounts:student_dashboard' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
+</div>
+
+
+
+
 </main>
 
 
@@ -190,8 +201,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const colors = {
     "writing": "#4caf50",
-    "surface": "#f44336",
-    "meaning-oriented": "#2196F3",
+    "Surface": "#f44336",
+    "Meaning-oriented": "#2196F3",
     default: "#999"
   };
 

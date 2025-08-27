@@ -51,11 +51,15 @@ def generate_process_report(revisions: List[Revision], decoded_data: DecodedData
     # 1. Collect all covered indices from all revisions
     covered_indices = set()
     for revision in revisions:
-        covered_indices.update(range(revision.index_start, revision.index_end + 1))
+        covered_indices.update(range(revision.index_start, revision.index_end+1))
         graph_info.append({
             "start": decoded_data.time_list[revision.index_start],
             "end": decoded_data.time_list[revision.index_end],
             "type": revision.type,
+            "reasoning": revision.reasoning,
+            "startpoint": revision.start_point,
+            "text_before": revision.text_before,
+            "text_end": revision.text_end
         })
 
     # 2. Identify and add writing periods
@@ -66,12 +70,12 @@ def generate_process_report(revisions: List[Revision], decoded_data: DecodedData
         if index not in covered_indices:
             if not writing_started:
                 # Start a new writing block
-                start_time = time_point
+                start_time = decoded_data.time_list[index-1] if index >0 else time_point
                 writing_started = True
         else:
             if writing_started:
                 # End current writing block before current revision index
-                end_time = decoded_data.time_list[index - 1] if index > 0 else time_point
+                end_time = decoded_data.time_list[index]
                 graph_info.append({
                     "start": start_time,
                     "end": end_time,

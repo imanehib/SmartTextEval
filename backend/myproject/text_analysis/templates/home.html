@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Correcteur de texte</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -133,42 +136,39 @@
 
   </style>
 </head>
-<body>
-    <div class="container">
+<body class="bg-light">
 
-    <!-- 🔓 Déconnexion en haut à droite -->
-    <div style="text-align: right; margin-bottom: 1rem;">
-      <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" style="
-          background-color: #e3342f;
-          color: white;
-          padding: 0.5rem 1rem;
-          border: none;
-          border-radius: 5px;
-          font-size: 0.9rem;
-          cursor: pointer;
-        ">
-          Déconnexion
-        </button>
-      </form>
+    <header class="bg-primary text-white text-center py-3">
+    <h1>Correcteur de texte</h1>
+    </header>
+
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      {% if user.role == 'professor' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
+      {% endif %}
+      {% if user.role == 'student' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:student_dashboard' %}">Accueil</a>
+      {% endif %}
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
     </div>
-    
-  <div class="container">
-    <h2>Correcteur de texte</h2>
+  </nav>
 
-    <!-- Sélecteur d'exercice -->
-    <form method="get" class="exercise-selector">
-      <label for="exercise">Choisir un exercice :</label>
-      <select name="exercise" id="exercise" onchange="this.form.submit()">
-        <option value="">-- Aucun --</option>
-        {% for ex in exercises %}
-          <option value="{{ ex.id }}" {% if ex.id|stringformat:"s" == selected_id %}selected{% endif %}>
-            {{ ex.title }}
-          </option>
-        {% endfor %}
-      </select>
-    </form>
+  <main class="container my-4">
+    
+
 
     <!-- Affichage de l'énoncé -->
     {% if exercise_content %}
@@ -304,10 +304,10 @@
     const EXERCISE_ID = document.getElementById("js-exercise-id").value;
     const STUDENT_ID  = document.getElementById("js-student-id").value;
 
-    // Restaure les frappes déjà en mémoire (si page a été rechargée)
-    let timeList   = loadFromSession("time_list");
-    let textList   = loadFromSession("text_list");
-    let cursorList = loadFromSession("cursor_list");
+    // Initialize arrays directly from sessionStorage or with initial values
+    let timeList   = sessionStorage.getItem("time_list") ? JSON.parse(sessionStorage.getItem("time_list")) : [performance.now()];
+    let textList   = sessionStorage.getItem("text_list") ? JSON.parse(sessionStorage.getItem("text_list")) : [""];
+    let cursorList = sessionStorage.getItem("cursor_list") ? JSON.parse(sessionStorage.getItem("cursor_list")) : ["0"];
 
     // 1) Afficher le bouton Sauvegarder si on a déjà une correction
     if (correctedText && saveButton) {
@@ -393,6 +393,12 @@
     return cookieValue;
   }
   </script>
+</main>
 
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

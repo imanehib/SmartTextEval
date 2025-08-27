@@ -10,6 +10,7 @@ class Exercise(models.Model):
     author      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exercises')
     title       = models.CharField(max_length=200)
     content     = models.TextField(default="")
+    session     = models.PositiveIntegerField(default=0)
     created_at  = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -27,6 +28,7 @@ class SavedText(models.Model):
     exercise = models.ForeignKey(Exercise, null=True, blank=True, on_delete=models.CASCADE)
     student = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='student_saved_texts')
     report_data = models.JSONField(null=True, blank=True)
+    session = models.PositiveIntegerField(default=0)
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
 

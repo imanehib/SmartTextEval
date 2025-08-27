@@ -41,11 +41,17 @@ class StudentSignUpForm(UserCreationForm):
         label="Niveau d'études",
         widget=forms.TextInput(attrs={'placeholder': "Exemple : Baccalauréat, Licence, Master"}),
     )
+    group = forms.CharField(
+        max_length=50,
+        required=True,
+        label="Groupe d'expérimentation",
+        widget=forms.TextInput(attrs={'placeholder': "Votre groupe expérimental ('contrôle', 'complet' ou 'mix')"}),
+    )
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         # Ici, nous incluons les champs souhaités pour un étudiant.
-        fields = ('username', 'first_name', 'last_name', 'email', 'age', 'study_level')
+        fields = ('username', 'first_name', 'last_name', 'email', 'age', 'study_level', 'group')
 
 
 class ProfessorSignUpForm(UserCreationForm):

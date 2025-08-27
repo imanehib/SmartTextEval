@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Retours sur la révision</title>
+  <title>Questionnaire</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,13 +13,16 @@
 <body class="bg-light">
 
   <header class="bg-primary text-white text-center py-3">
-    <h1>Retours sur la révision</h1>
+    <h1>Questionnaire</h1>
   </header>
 
   <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
     <div class="container-fluid">
       {% if user.role == 'professor' %}
       <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
+      {% endif %}
+      {% if user.role == 'student' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:student_dashboard' %}">Accueil</a>
       {% endif %}
       <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
       <div class="ms-auto">
