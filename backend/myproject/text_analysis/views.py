@@ -360,11 +360,12 @@ def annotate_view(request):
             if request.user.n_annotated<annotation_expected:
                 my_text = SavedText.objects.filter(n_annotated=0).order_by('?').first() #on sélectionne un texte non annoté
                 if my_text is not None:
-                    labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
-                    context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+                    if my_text.report_data is not None:
+                        labels = ["Pertinence", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
+                        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
                 
-                    #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
-                    return render(request, 'text_analysis/annotate.html', context)
+                        #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
+                        return render(request, 'text_analysis/annotate.html', context)
                 else:
                     return redirect('accounts:professor_dashboard')
 
@@ -434,16 +435,38 @@ def process_report_view(request, id):
 
 @login_required
 def feedback_view(request):
-    
-    my_text = SavedText.objects.filter(student=request.user.id, session=request.user.session-1).first() #on sélectionne un texte qui doit correspondre à la dernière session d'écriture et à l'étudiant concerné
-    #my_text = get_object_or_404(SavedText, pk=2)
-    labels = ["Réponse à la consigne", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
-    context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
-                
-    # Still processing or no data — show waiting page
-    request.user.feedback_seen = request.user.session
-    request.user.save()
-    return render(request, 'text_analysis/feedback.html', context)
+    if request.method == 'POST':
+        feedback_opened_data = request.POST.get('feedback_opened', '{}')
+        next_view = request.POST.get('next_view', 'student_dashboard')
+        text_id = request.POST.get('text_id')
+        try:
+            feedback_opened = json.loads(feedback_opened_data)
+        except json.JSONDecodeError:
+            feedback_opened = {}
+
+        # Save the feedback_opened data if needed
+        print(text_id)
+        my_text = SavedText.objects.get(id=text_id)
+        my_text.feedback_opened = feedback_opened
+        my_text.save()
+
+        if next_view == "questionnaire_report":
+            return redirect('text_analysis:questionnaire_report')
+        else:
+            return redirect('accounts:student_dashboard')
+    else:
+        my_text = SavedText.objects.filter(student=request.user.id, session=request.user.session-1).first() #on sélectionne un texte qui doit correspondre à la dernière session d'écriture et à l'étudiant concerné
+        #my_text = get_object_or_404(SavedText, pk=2)
+        labels = ["Pertinence", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
+        feedback_opened={"Pertinence": False, "Organisation": False, "Arguments": False, "Vocabulaire": False, "Grammaire": False, "Orthographe": False, "Style": False}
+        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'feedback_opened': feedback_opened, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+
+        # Still processing or no data — show waiting page
+        request.user.feedback_seen = request.user.session
+        request.user.save()
+        return render(request, 'text_analysis/feedback.html', context)
+
+
 
 
 def run_analysis_in_background(id, user_id):
@@ -469,6 +492,7 @@ def run_analysis_in_background(id, user_id):
     if user.group!="contrôle":
         revisions = characterize_revisions(decoded_data)
         report = generate_process_report(revisions, decoded_data)
+
     else:
         report = dict()
     # Create TextEvaluator instance and evaluate the text

@@ -81,29 +81,86 @@
   </script>
   
   {% for label in labels %}
-  <div id="report-box{{ forloop.counter0 }}" class="form-group mb-5 p-4 border rounded shadow-sm">
-    <h3 class="fw-bold mb-4">{{ label }}</h3>
-    
-    <div class="report-item"></div>
-    <input type="hidden" name="rubric_name{{ forloop.counter0 }}" value="{{ label }}">
+  <div id="report-box{{ forloop.counter0 }}" class="form-group mb-3 border rounded shadow-sm">
+    <div class="p-3 cursor-pointer" data-index="{{ forloop.counter0 }}" data-label="{{ label }}" onclick="toggleReport({{ forloop.counter0 }})">
+      <h3 class="fw-bold mb-0">{{ label }} <span class="float-end">+</span></h3>
+    </div>
 
-    <p>Score: <span id="score{{ forloop.counter0 }}"></span></p>
-    <p>Feedback: <span id="feedback{{ forloop.counter0 }}"></span></p>
+    <div id="report-content{{ forloop.counter0 }}" class="p-4 border-top" style="display: none;">
+      <div class="report-item"></div>
+      <input type="hidden" name="rubric_name{{ forloop.counter0 }}" value="{{ label }}">
+
+      <p>Score: <span id="score{{ forloop.counter0 }}"></span></p>
+      <p>Feedback: <span id="feedback{{ forloop.counter0 }}"></span></p>
+    </div>
   </div>
+
   {% endfor %}
 
 
-  {% if user.group == "contrôle" %}
-  <div class="text-center my-4">
-    <a href="{% url 'accounts:student_dashboard' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
-  </div>
-  {% endif %}
+  {{ feedback_opened|json_script:"feedback-opened-data" }}
+  <script>
+    // Initialize feedback_opened object
+    let feedback_opened = {};
+    try {
+      feedback_opened = JSON.parse(document.getElementById('feedback-opened-data').textContent) || {};
+    } catch (e) {
+      console.error('Error parsing feedback_opened:', e);
+      feedback_opened = {};
+    }
 
-  {% if user.group == "complet" %}
-  <div class="text-center my-4">
-    <a href="{% url 'text_analysis:questionnaire_report' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
-  </div>
-  {% endif %}
+    // Update the toggleReport function to track opened boxes
+    function toggleReport(index) {
+      const content = document.getElementById(`report-content${index}`);
+      const clickableDiv = document.querySelector(`[data-index="${index}"]`);
+      const toggle = clickableDiv.querySelector('span');
+      const label = clickableDiv.dataset.label;
+      
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.textContent = '−';
+        feedback_opened[label] = true;
+      } else {
+        content.style.display = 'none';
+        toggle.textContent = '+';
+        feedback_opened[label] = false;
+      }
+    }
+  </script>
+
+
+
+<!-- Handle feedback_opened data in the feedback view before redirecting -->
+{% if user.group == "contrôle" %}
+<div class="text-center my-4">
+  <form method="post" action="">
+    {% csrf_token %}
+    <input type="hidden" name="feedback_opened" value="">
+    <input type="hidden" name="next_view" value="student_dashboard">
+    <input type="hidden" name="text_id" value="{{ text_id }}">
+    <button type="submit" class="btn btn-primary" onclick="submitFeedbackOpened(this.form)">J'ai fini de lire et je veux passer à la suite</button>
+  </form>
+</div>
+{% endif %}
+
+{% if user.group == "complet" %}
+<div class="text-center my-4">
+  <form method="post" action="">
+    {% csrf_token %}
+    <input type="hidden" name="feedback_opened" value="">
+    <input type="hidden" name="next_view" value="questionnaire_report">
+    <input type="hidden" name="text_id" value="{{ text_id }}">
+    <button type="submit" class="btn btn-primary" onclick="submitFeedbackOpened(this.form)">J'ai fini de lire et je veux passer à la suite</button>
+  </form>
+</div>
+{% endif %}
+
+<script>
+  function submitFeedbackOpened(form) {
+    const input = form.querySelector('input[name="feedback_opened"]');
+    input.value = JSON.stringify(feedback_opened);
+  }
+</script>
 </main>
 
 

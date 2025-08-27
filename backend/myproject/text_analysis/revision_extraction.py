@@ -116,7 +116,7 @@ def extract_revisions(text_list, cursor_list)-> List[Revision]:
         index_end = extract_end(text_list, cursor_list, index_start, reason_start)
         print(text_list[index_end])
         if index_end != -1:
-            revisions.append(Revision(index_start, index_end, position, text_list[index_start], text_list[index_end])) 
+            revisions.append(Revision(index_start, index_end, position, reason_start, text_list[index_start], text_list[index_end])) 
     for revision in revisions:
         print(revision)
     return revisions

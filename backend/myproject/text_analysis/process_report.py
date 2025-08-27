@@ -10,6 +10,7 @@ Pour chaque nouveau texte qui arrive, on veut :
 """
 
 from typing import List
+
 from ..text_analysis.revision import Revision
 from ..text_analysis.revision_extraction import extract_revisions
 from ..text_analysis.schemas import DecodedData
@@ -90,10 +91,57 @@ def generate_process_report(revisions: List[Revision], decoded_data: DecodedData
             "end": decoded_data.time_list[-1],
             "type": "writing",
         })
-        
+
+    indicators = compute_indicators(revisions, decoded_data, graph_info)
     report = {
         "total_revisions": len(revisions),
 
         "graph_info": graph_info,  # List of Revision objects
+        "indicators": indicators,
     }
+
+
     return report
+
+
+def compute_indicators(revisions: List[Revision], decoded_data: DecodedData, graph_info) -> dict:
+    prev_time = 0
+    break_count = 0
+    break_time = 0
+    for time in decoded_data.time_list:
+        if time-prev_time>2:
+            break_count += 1
+            break_time += time-prev_time
+        prev_time = time
+    
+    deletion_count = sum(1 for revision in revisions if revision.reason_start == "deletion")
+    insertion_count = sum(1 for revision in revisions if revision.reason_start == "move")
+    # Calculate ratio of final text to total text processed
+    final_text_length = len(decoded_data.text_list[-1]) if decoded_data.text_list else 0
+    
+    # Calculate total text processed by summing only newly added text at each iteration
+    total_text_processed = 0
+    if decoded_data.text_list:
+        # First text is all new
+        total_text_processed += len(decoded_data.text_list[0])
+        # For subsequent texts, only count the difference
+        for i in range(1, len(decoded_data.text_list)):
+            current_length = len(decoded_data.text_list[i])
+            previous_length = len(decoded_data.text_list[i-1])
+            if current_length > previous_length:
+                total_text_processed += current_length - previous_length
+    
+    ratio_process_product = (final_text_length / total_text_processed)*100 if total_text_processed > 0 else 0
+
+    indicators = {
+        "writing_time": sum([info["end"] - info["start"] for info in graph_info if info["type"] == "writing"]),
+        "revision_count": len(revisions),
+        "break_count": break_count,
+        "break_time": break_time,
+        "deletion_count": deletion_count,
+        "insertion_count": insertion_count,
+        "ratio_process_product": ratio_process_product
+    }
+
+    return indicators
+

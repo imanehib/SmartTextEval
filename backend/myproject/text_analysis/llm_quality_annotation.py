@@ -1,3 +1,4 @@
+import json
 import os
 import openai
 from openai import OpenAI
@@ -15,7 +16,7 @@ class TextEvaluator:
         
         # Define evaluation rubrics in French
         self.rubrics = {
-            "réponse_consigne": "Évaluez la réponse à la consigne et la prise de position",
+            "pertinence": "Évaluez la réponse à la consigne et la prise de position",
             "organisation": "Évaluez l'organisation et la structure du texte",
             "arguments": "Évaluez la qualité des arguments et des exemples",
             "vocabulaire": "Évaluez la richesse et la précision du vocabulaire",
@@ -36,17 +37,19 @@ class TextEvaluator:
             Veuillez évaluer le texte suivant selon le critère : {rubric_name}
             {rubric_description}
             
-            L'évaluation devra prendre en compte le contexte: {context}
+            L'évaluation devra prendre en compte les instructions données à l'élève: {context}
             Texte à évaluer :
             "{text}"
             
             Fournissez :
             1. Note (sur une échelle de 1 à 4, où 1 = insuffisant, 2 = suffisant, 3 = bien, 4 = excellent)
-            2. Commentaire détaillé
+            2. Feedback concis sur le critère donné, comportant un constat des choses bien faites, une mise en valeur des principales erreurs et des suggestions pour améliorer sur une prochaine rédaction.
             
-            Format de réponse :
-            Note: [nombre]
-            Commentaire: [votre feedback]
+            Fournissez la réponse au format JSON strict suivant :
+            {{
+                "score": [nombre entier de 1 à 4],
+                "feedback": "[feedback concis sous forme de paragraphe]"
+            }}
             """
             
 
@@ -54,25 +57,23 @@ class TextEvaluator:
            
             try:
                 response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-5",
                     messages=[
                         {"role": "system", "content": "Vous êtes un évaluateur expérimenté en langue française."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=0.7,
                 )
 
                 result = response.choices[0].message.content
                 logger.info(result)
                 # Parse response
-                score_line = result.split('\n')[0]
-                feedback_line = ' '.join(result.split('\n')[1:])
+                result = response.choices[0].message.content.strip()
+                data = json.loads(result)  # Parse JSON safely
 
-                score = int(score_line.split(':')[1].strip())
-                feedback = feedback_line.split(':')[1].strip()
+                score = max(1, min(4, int(data["score"])))
+                feedback = data["feedback"]
 
-                # Ensure score is between 1 and 4
-                score = max(1, min(4, score))
+            
                 logger.info(score, feedback)
                 evaluations.append({
                     "rubric": rubric_name,
@@ -81,6 +82,7 @@ class TextEvaluator:
                 })
 
             except Exception as e:
+
                 evaluations.append({
                     "rubric": rubric_name,
                     "score": 0,

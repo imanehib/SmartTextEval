@@ -29,6 +29,7 @@ class SavedText(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='student_saved_texts')
     report_data = models.JSONField(null=True, blank=True)
     session = models.PositiveIntegerField(default=0)
+    feedback_opened = models.JSONField(null=True, blank=True)  # Pour stocker les feedbacks ouverts au clic
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
 

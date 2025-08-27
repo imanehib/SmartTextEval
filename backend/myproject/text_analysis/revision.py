@@ -5,13 +5,14 @@ import time
 
 
 class Revision:
-    def __init__(self, start, end, position, text_before, text_end):
+    def __init__(self, start, end, position, reason_start, text_before, text_end):
         self.index_start = start  # Placeholder for start index of the revision
         self.index_end = end    # Placeholder for end index of the revision
         self.start_point = position  #contextual or pre-contextual revision
+        self.reason_start = reason_start
         self.text_before = text_before         # Placeholder for the text of the revision
         self.text_end = text_end
-        self.type = None  # Placeholder for revision type
+        self.type = None  # Placeholder for revision type, 
         self.context = None
         self.reasoning = None  # Placeholder for reasoning behind classification
         self.instructions = None  # Placeholder for exercise instructions if needed
@@ -42,9 +43,7 @@ class Revision:
             clean_response_text = response_text.replace("```json", "").replace("```", "").strip()
             response = json.loads(clean_response_text)
             category = response['classification']
-            reasoning_1 = response['reasoning']
             self.type = category
-            self.reasoning = reasoning_1
             
         except json.JSONDecodeError:
             print("Error parsing first response:", response_text)

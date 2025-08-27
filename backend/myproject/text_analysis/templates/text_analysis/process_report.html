@@ -141,8 +141,70 @@
 
 
 <h4>Indicateurs</h4>
-
-
+<div class="row">
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Temps d'écriture</h5>
+        <p class="card-text">Vous avez passé {{ process_report.indicators.writing_time|floatformat:1 }} secondes à écrire votre texte.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Nombre de révisions</h5>
+        <p class="card-text">Vous avez effectué {{ process_report.indicators.revision_count }} révision{{ process_report.indicators.revision_count|pluralize }} pendant l'écriture.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Nombre de pauses</h5>
+        <p class="card-text">Vous avez marqué {{ process_report.indicators.break_count }} pause{{ process_report.indicators.break_count|pluralize }} lors de la rédaction.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Temps de pause</h5>
+        <p class="card-text">Le temps total de pause s'élève à {{ process_report.indicators.break_time|floatformat:1 }} secondes.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Suppressions</h5>
+        <p class="card-text">Vous avez effectué {{ process_report.indicators.deletion_count }} phase de suppression{{ process_report.indicators.deletion_count|pluralize }} au total.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Insertions</h5>
+        <p class="card-text">Vous avez effectué {{ process_report.indicators.insertion_count }} phase d'insertion{{ process_report.indicators.insertion_count|pluralize }} au total.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Ratio processus/produit</h5>
+        <p class="card-text">Vous avez gardé {{ process_report.indicators.ratio_process_product|floatformat:2 }}% du texte écrit.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="text-center my-4">
       <a href="{% url 'accounts:student_dashboard' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
