@@ -12,7 +12,7 @@ from ..text_analysis.llm_quality_annotation import TextEvaluator
 
 
 
-from .models import Questionnaire, SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
+from .models import Questionnaire, QuestionnaireFeeling, SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
 from .forms import ExerciseForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponse, JsonResponse
@@ -437,7 +437,7 @@ def process_report_view(request, id):
 def feedback_view(request):
     if request.method == 'POST':
         feedback_opened_data = request.POST.get('feedback_opened', '{}')
-        next_view = request.POST.get('next_view', 'student_dashboard')
+        next_view = request.POST.get('next_view')
         text_id = request.POST.get('text_id')
         try:
             feedback_opened = json.loads(feedback_opened_data)
@@ -453,7 +453,7 @@ def feedback_view(request):
         if next_view == "questionnaire_report":
             return redirect('text_analysis:questionnaire_report')
         else:
-            return redirect('accounts:student_dashboard')
+            return redirect('text_analysis:submit_questionnaire_feeling')
     else:
         my_text = SavedText.objects.filter(student=request.user.id, session=request.user.session-1).first() #on sélectionne un texte qui doit correspondre à la dernière session d'écriture et à l'étudiant concerné
         #my_text = get_object_or_404(SavedText, pk=2)
@@ -519,7 +519,7 @@ def run_analysis_in_background(id, user_id):
     
 
 
-
+@login_required
 def submit_questionnaire(request):
     if request.method == 'POST':
         text_id = request.session.get('text_id')
@@ -543,6 +543,26 @@ def submit_questionnaire(request):
         return redirect('text_analysis:thank_you')  
 
     return render(request, 'text_analysis/questionnaire.html')
+
+
+@login_required
+def submit_questionnaire_feeling(request):
+    if request.method == 'POST':
+        text_id = request.session.get('text_id')
+        if not text_id:
+            return HttpResponse("No associated text found.", status=400)
+
+        saved_text = get_object_or_404(SavedText, pk=text_id)
+        # Create a new Questionnaire entry
+        QuestionnaireFeeling.objects.create(
+            saved_text=saved_text,
+            overall_feeling=request.POST.get('overall_feeling', ''),
+            specific_feedback=request.POST.get('specific_feedback', ''),
+            efforts=request.POST.get('efforts', ''),
+        )
+        return redirect('accounts:student_dashboard')  
+
+    return render(request, 'text_analysis/questionnaire_feeling.html')
 
 @login_required
 def questionnaire_report(request):

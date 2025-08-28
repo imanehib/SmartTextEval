@@ -82,4 +82,14 @@ class Questionnaire(models.Model):
 
     def __str__(self):
         return f"Questionnaire #{self.id} - {self.submitted_at.strftime('%Y-%m-%d')}"
+
+class QuestionnaireFeeling(models.Model):
+    saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="questionnaire_feeling", null=True)
+    overall_feeling = models.TextField()
+    specific_feedback = models.TextField()
+    efforts = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Questionnaire #{self.id} - {self.submitted_at.strftime('%Y-%m-%d')}"
     

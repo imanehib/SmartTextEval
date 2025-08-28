@@ -1,0 +1,81 @@
+<!-- updated view.html extending base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Questionnaire</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+  <header class="bg-primary text-white text-center py-3">
+    <h1>Questionnaire</h1>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-info px-4">
+    <div class="container-fluid">
+      {% if user.role == 'professor' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:professor_dashboard' %}">Accueil</a>
+      {% endif %}
+      {% if user.role == 'student' %}
+      <a class="navbar-brand text-white" href="{% url 'accounts:student_dashboard' %}">Accueil</a>
+      {% endif %}
+      <a class="navbar-brand text-white" href="{% url 'text_analysis:home' %}">Exercices</a>
+      <div class="ms-auto">
+        {% if user.is_authenticated %}
+          <form class="d-inline" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-light" type="submit">Déconnexion</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light me-2" href="{% url 'accounts:login' %}">Connexion</a>
+          <a class="btn btn-outline-light" href="{% url 'accounts:signup_choice' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+
+<main class="container my-4">
+
+    
+
+<form action="{% url 'text_analysis:submit_questionnaire_feeling' %}" method="post" style="max-width: 700px; margin: auto; font-family: Arial, sans-serif;">
+    {% csrf_token %}
+    <h2>Ressenti sur l'évaluation</h2>
+    <p>Merci de prendre le temps de répondre à ces questions sur votre ressenti concernant l'évaluation. Cette étape est essentielle au bon déroulement de l'expérimentation.</p>
+
+    <!-- 1. Overall feeling -->
+    <label for="overall-feeling"><strong>1. Trouvez-vous que l'évaluation de votre travail était globalement correcte et justifiée?</strong></label><br>
+    <textarea id="overall-feeling" name="overall_feeling" rows="4" style="width:100%;" placeholder="Décris ton ressenti sur l'évaluation..."></textarea><br><br>
+
+    <!-- 2. Specific feedback -->
+    <label for="specific-feedback"><strong>2. Quels aspects de l'évaluation avez-vous trouvés les plus pertinents ou utiles?</strong></label><br>
+    <textarea id="specific-feedback" name="specific_feedback" rows="4" style="width:100%;" placeholder="E.g., clarté des critères, pertinence des commentaires..."></textarea><br><br>
+
+    <!-- 3. Feedback usage -->
+    <label for="efforts"><strong>3. Avez-vous l'impression que l'évaluation donnée, à travers les commentaires, a pris en compte vos efforts (même si les scores ne reflètent pas toujours cela)?</strong></label><br>
+    <textarea id="efforts" name="efforts" rows="4" style="width:100%;" placeholder="Décrire l'impression de prise en compte des efforts..."></textarea><br><br>
+
+    <!-- Submit -->
+    <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Envoyer les réponses</button>
+</form>
+
+
+
+
+</main>
+
+
+
+  <footer class="bg-secondary text-white text-center py-2 mt-auto">
+    &copy; 2025 EvidenceB/Sorbonne Université. Tous droits réservés.
+  </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

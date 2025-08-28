@@ -26,6 +26,7 @@ urlpatterns = [
     path('annotate/', annotate_view, name='annotate_view'),
     path('process_report/<int:id>', process_report_view, name='process_report'),
     path('questionnaire/', views.submit_questionnaire, name='submit_questionnaire'),
+    path('questionnaire_feeling/', views.submit_questionnaire_feeling, name='submit_questionnaire_feeling'),
     path('analysis-status/<int:id>/', views.analysis_status_api, name='analysis_status_api'),
     path("thank-you/", views.thank_you, name="thank_you"),
     path('feedback/', views.feedback_view, name="feedback"),
