@@ -38,7 +38,7 @@ def extract_starts(text_list, cursor_list):
                 
             elif len(text_list[i])>= len(text_list[i-1]) and cursor_list[i]<len(text_list[i]):
                 index_starts.append(i-1)
-                reason_starts.append("move") # sinon alors on a un mouvement de curseur
+                reason_starts.append("move") # sinon alors on a une insertion
                 deletion = False
 
                 if cursor_list[i] != len(text_list[i]):

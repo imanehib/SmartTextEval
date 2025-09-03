@@ -41,11 +41,11 @@ class StudentSignUpForm(UserCreationForm):
         label="Niveau d'études",
         widget=forms.TextInput(attrs={'placeholder': "Exemple : Baccalauréat, Licence, Master"}),
     )
-    group = forms.CharField(
-        max_length=50,
+    group = forms.ChoiceField(
+        choices=[(1, '1'), (2, '2'), (3, '3')],
         required=True,
         label="Groupe d'expérimentation",
-        widget=forms.TextInput(attrs={'placeholder': "Votre groupe expérimental ('contrôle', 'complet' ou 'mix')"}),
+        widget=forms.Select(attrs={'placeholder': "Votre groupe expérimental"}),
     )
 
     class Meta(UserCreationForm.Meta):

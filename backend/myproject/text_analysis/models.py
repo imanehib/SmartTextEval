@@ -85,9 +85,9 @@ class Questionnaire(models.Model):
 
 class QuestionnaireFeeling(models.Model):
     saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="questionnaire_feeling", null=True)
-    overall_feeling = models.TextField()
+    overall_feeling = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     specific_feedback = models.TextField()
-    efforts = models.TextField()
+    efforts = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

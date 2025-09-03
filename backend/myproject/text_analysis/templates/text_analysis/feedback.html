@@ -55,12 +55,19 @@
     <main class="container my-4">
 
   {{ llm_report|json_script:"llm-report-data" }}
+  {{ feedback_revision|json_script:"feedback-revision-data" }}
   <script>
     let llm_report = [];
     try {
       llm_report = JSON.parse(document.getElementById('llm-report-data').textContent);
     } catch (e) {
       console.error('Error parsing llm_report:', e);
+    }
+    let feedback_revision = [];
+    try {
+      feedback_revision = JSON.parse(document.getElementById('feedback-revision-data').textContent);
+    } catch (e) {
+      console.error('Error parsing feedback_revision:', e);
     }
 
     // mapping score → texte
@@ -92,6 +99,9 @@
 
       <p>Score: <span id="score{{ forloop.counter0 }}"></span></p>
       <p>Feedback: <span id="feedback{{ forloop.counter0 }}"></span></p>
+      {% if user.group == 3 %}
+      <p>Révision: <span id="feedback-revision{{ forloop.counter0 }}"></span></p>
+      {% endif %}
     </div>
   </div>
 
@@ -131,7 +141,7 @@
 
 
 <!-- Handle feedback_opened data in the feedback view before redirecting -->
-{% if user.group == "contrôle" %}
+{% if user.group == 1 %}
 <div class="text-center my-4">
   <form method="post" action="">
     {% csrf_token %}
@@ -143,7 +153,7 @@
 </div>
 {% endif %}
 
-{% if user.group == "complet" %}
+{% if user.group == 2 %}
 <div class="text-center my-4">
   <form method="post" action="">
     {% csrf_token %}
@@ -173,6 +183,7 @@
     const scoreEl = document.getElementById(`score${index}`);
     const feedbackEl = document.getElementById(`feedback${index}`);
     const boxEl = document.getElementById(`report-box${index}`);
+   
 
     if (!item) return;
 
@@ -186,6 +197,15 @@
     }
     if (boxEl && score) {
       boxEl.style.backgroundColor = scoreColor[score] || "white";
+    }
+  });
+  feedback_revision.forEach((item, index) => {
+    const feedbackRevisionEl = document.getElementById(`feedback-revision${index}`);
+
+    if (!item) return;
+    console.log(item)
+    if (feedbackRevisionEl) {
+      feedbackRevisionEl.textContent = item.content ?? "—";
     }
   });
 </script>

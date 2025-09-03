@@ -206,6 +206,7 @@
           oncopy="return false" 
           oncut="return false" 
           onpaste="return false"
+          style="height: 300px;"
       >{{ request.POST.text }}</textarea>
 
       <!-- Messages de capitalisation -->
@@ -214,8 +215,20 @@
       {% endfor %}
 
       <div class="buttons-container">
-        <button type="button" class="btn-analyze" id="save-btn">Valider</button>
+        <button type="button" class="btn-analyze" id="save-btn" onclick="confirmValidation()">Valider</button>
       </div>
+
+      <script>
+      function confirmValidation() {
+        if (confirm("Êtes-vous sûr ? Valider le texte mettra fin à l'exercice et vous ne pourrez pas revenir dessus.")) {
+          // Trigger the existing save functionality by dispatching a custom event
+          const saveEvent = new Event('saveConfirmed');
+          document.getElementById("save-btn").dispatchEvent(saveEvent);
+        }
+        // If user clicks Cancel, do nothing (function ends here)
+      }
+      </script>
+      
     </form>
     
 
@@ -331,7 +344,7 @@
     }
 
     // 3) Quand on clique sur Sauvegarder, on envoie tout d’un coup
-    saveButton.addEventListener("click", function (e) {
+    saveButton.addEventListener("saveConfirmed", function (e) {
       e.preventDefault();
       if (!EXERCISE_ID || isNaN(EXERCISE_ID)) {
         alert("Veuillez choisir un exercice avant de sauvegarder.");

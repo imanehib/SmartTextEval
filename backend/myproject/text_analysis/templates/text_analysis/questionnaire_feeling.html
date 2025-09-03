@@ -51,15 +51,37 @@
 
     <!-- 1. Overall feeling -->
     <label for="overall-feeling"><strong>1. Trouvez-vous que l'évaluation de votre travail était globalement correcte et justifiée?</strong></label><br>
-    <textarea id="overall-feeling" name="overall_feeling" rows="4" style="width:100%;" placeholder="Décris ton ressenti sur l'évaluation..."></textarea><br><br>
+    <div style="margin: 10px 0;">
+      <input type="radio" id="overall-1" name="overall_feeling" value="1" required>
+      <label for="overall-1">1 - Pas du tout d'accord</label><br>
+      <input type="radio" id="overall-2" name="overall_feeling" value="2" required>
+      <label for="overall-2">2 - Pas d'accord</label><br>
+      <input type="radio" id="overall-3" name="overall_feeling" value="3" required>
+      <label for="overall-3">3 - Neutre</label><br>
+      <input type="radio" id="overall-4" name="overall_feeling" value="4" required>
+      <label for="overall-4">4 - D'accord</label><br>
+      <input type="radio" id="overall-5" name="overall_feeling" value="5" required>
+      <label for="overall-5">5 - Tout à fait d'accord</label><br>
+    </div><br></div>
 
     <!-- 2. Specific feedback -->
     <label for="specific-feedback"><strong>2. Quels aspects de l'évaluation avez-vous trouvés les plus pertinents ou utiles?</strong></label><br>
     <textarea id="specific-feedback" name="specific_feedback" rows="4" style="width:100%;" placeholder="E.g., clarté des critères, pertinence des commentaires..."></textarea><br><br>
 
-    <!-- 3. Feedback usage -->
-    <label for="efforts"><strong>3. Avez-vous l'impression que l'évaluation donnée, à travers les commentaires, a pris en compte vos efforts (même si les scores ne reflètent pas toujours cela)?</strong></label><br>
-    <textarea id="efforts" name="efforts" rows="4" style="width:100%;" placeholder="Décrire l'impression de prise en compte des efforts..."></textarea><br><br>
+      <!-- 3. Feedback usage -->
+      <label for="efforts"><strong>3. Avez-vous l'impression que l'évaluation donnée, à travers les commentaires, a pris en compte vos efforts (même si les scores ne reflètent pas toujours cela)?</strong></label><br>
+      <div style="margin: 10px 0;">
+        <input type="radio" id="efforts-1" name="efforts" value="1" required>
+        <label for="efforts-1">1 - Pas du tout d'accord</label><br>
+        <input type="radio" id="efforts-2" name="efforts" value="2" required>
+        <label for="efforts-2">2 - Pas d'accord</label><br>
+        <input type="radio" id="efforts-3" name="efforts" value="3" required>
+        <label for="efforts-3">3 - Neutre</label><br>
+        <input type="radio" id="efforts-4" name="efforts" value="4" required>
+        <label for="efforts-4">4 - D'accord</label><br>
+        <input type="radio" id="efforts-5" name="efforts" value="5" required>
+        <label for="efforts-5">5 - Tout à fait d'accord</label><br>
+      </div><br>
 
     <!-- Submit -->
     <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Envoyer les réponses</button>

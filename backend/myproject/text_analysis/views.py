@@ -5,10 +5,13 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from sqlalchemy import Null
 
+
+
 from ..accounts.models import CustomUser
 
 from ..text_analysis.process_report import characterize_revisions, generate_process_report
 from ..text_analysis.llm_quality_annotation import TextEvaluator
+from ..text_analysis.revision_quality_links import analyze_process_report, generate_global_feedback
 
 
 
@@ -227,7 +230,7 @@ class SaveTypingDataView(View):
             request.session['text_id'] = saved.id
             user = CustomUser.objects.get(id=request.user.id)
             #ceux qui reçoivent le feedback avec process report ont aussi le questionnaire sur la révision
-            if user.group=="complet":
+            if user.group==2:
                 next_url = reverse('text_analysis:submit_questionnaire')
             else:
                 next_url = reverse('text_analysis:thank_you')
@@ -321,6 +324,8 @@ def annotate_view(request):
             original_feedback = request.POST.get(f"original_feedback{index}")
             corrected_feedback = request.POST.get(f"corrected_feedback{index}")
             agree_feedback = request.POST.get(f"agree_feedback{index}")
+
+           
             # Add to annotations array
             annotations.append({
             "original_score": original_score,
@@ -339,7 +344,12 @@ def annotate_view(request):
             })
             
             index += 1
-        
+
+        if my_text.student.group == 3:
+            analysis_revision = analyze_process_report(my_text.report_data.get("graph_info", []))
+            feedback_revision = generate_global_feedback(my_text.report_data.get("llm_evaluation", []), analysis_revision) # to save in the object
+            my_text.report_data['feedback_revision'] = feedback_revision
+
         my_text.report_data['llm_evaluation'] = report
         my_text.assigned_to = request.user
         my_text.n_annotated+=1
@@ -366,8 +376,10 @@ def annotate_view(request):
                 
                         #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
                         return render(request, 'text_analysis/annotate.html', context)
+                    else:
+                        return redirect('accounts:professor_dashboard')
                 else:
-                    return redirect('accounts:professor_dashboard')
+                        return redirect('accounts:professor_dashboard')
 
 """
 @login_required
@@ -450,6 +462,9 @@ def feedback_view(request):
         my_text.feedback_opened = feedback_opened
         my_text.save()
 
+        # Store text_id in session for questionnaire_feeling
+        request.session['text_id'] = text_id
+
         if next_view == "questionnaire_report":
             return redirect('text_analysis:questionnaire_report')
         else:
@@ -459,9 +474,10 @@ def feedback_view(request):
         #my_text = get_object_or_404(SavedText, pk=2)
         labels = ["Pertinence", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
         feedback_opened={"Pertinence": False, "Organisation": False, "Arguments": False, "Vocabulaire": False, "Grammaire": False, "Orthographe": False, "Style": False}
-        context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'feedback_opened': feedback_opened, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
-
-        # Still processing or no data — show waiting page
+        if request.user.group == 1 or request.user.group == 2:
+            context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'feedback_opened': feedback_opened, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
+        else:
+            context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'feedback_opened': feedback_opened, 'llm_report': my_text.report_data.get("llm_evaluation", [], ), 'feedback_revision': my_text.report_data.get("feedback_revision", [])}
         request.user.feedback_seen = request.user.session
         request.user.save()
         return render(request, 'text_analysis/feedback.html', context)
@@ -489,7 +505,8 @@ def run_analysis_in_background(id, user_id):
         exercise_id=str(my_text.exercise_id),
         text_id=str(my_text.id)
     )
-    if user.group!="contrôle":
+    #text_fake = get_object_or_404(SavedText, id=3)
+    if user.group!="1":
         revisions = characterize_revisions(decoded_data)
         report = generate_process_report(revisions, decoded_data)
 
@@ -500,6 +517,8 @@ def run_analysis_in_background(id, user_id):
     evaluator = TextEvaluator(api_key)
     evaluation = evaluator.evaluate_text(decoded_data.final_text, decoded_data.context)
     #logger.info(evaluation)
+    
+    #report = text_fake.report_data
     report["llm_evaluation"] = evaluation
 
     cache_key = f'process_report_{id}'
