@@ -42,7 +42,7 @@
 
   <h4>Consignes</h4>
   <p> Les textes sont pré-notés par un modèle de langage sur différents critères pré-définis que vous découvrirez ci-dessous. Votre rôle est de vérifier si ces évaluations vous semblent correctes ou non, et de les corriger si besoin.
-    Les évaluations sont composées d'un score (allant de 1 à 4) et d'un retour textuel justifiant ce score (appelé feedback ci-dessous).
+    Les évaluations sont composées d'un score (allant de 1 à 4) et d'un retour textuel justifiant ce score (appelé feedback ci-dessous), qui comporte un champ portant sur les points forts, un autre sur les points à améliorer et un dernier sur des suggestions d'amélioration.
     Vous pouvez choisir de ne corriger les deux, aucun ou même un des deux pour chaque critère d'évaluation.
   </p>
 
@@ -105,47 +105,70 @@
       </div>
       <div class="form-group correction-feedback{{ forloop.counter0 }}" style="display:none;">
       <label for="corrected_feedback{{ forloop.counter0 }}">Votre correction du feedback:</label>
-      <textarea class="form-control" name="corrected_feedback{{ forloop.counter0 }}" rows="3"></textarea>
+      <textarea class="form-control" name="corrected_points_forts{{ forloop.counter0 }}" rows="3"></textarea>
+      <textarea class="form-control" name="corrected_points_a_ameliorer{{ forloop.counter0 }}" rows="3"></textarea>
+      <textarea class="form-control" name="corrected_suggestions{{ forloop.counter0 }}" rows="3"></textarea>
       </div>
       <input type="hidden" name="original_score{{ forloop.counter0 }}" id="original_score{{ forloop.counter0 }}">
-      <input type="hidden" name="original_feedback{{ forloop.counter0 }}" id="original_feedback{{ forloop.counter0 }}">
+      <input type="hidden" name="original_points_forts{{ forloop.counter0 }}" id="original_points_forts{{ forloop.counter0 }}">
+      <input type="hidden" name="original_points_a_ameliorer{{ forloop.counter0 }}" id="original_points_a_ameliorer{{ forloop.counter0 }}">
+      <input type="hidden" name="original_suggestions{{ forloop.counter0 }}" id="original_suggestions{{ forloop.counter0 }}">
       </div>
     </div>
     {% endfor %}
 
+
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-      llm_report.forEach((report, index) => {
+  document.addEventListener('DOMContentLoaded', function() {
+    llm_report.forEach((report, index) => {
       document.getElementById(`score${index}`).textContent = report.score;
-      document.getElementById(`feedback${index}`).textContent = report.feedback;
+      document.getElementById(`feedback${index}`).textContent = report.points_forts + "\n\n" + report.points_a_ameliorer + "\n\n" + report.suggestions;
       document.getElementById(`original_score${index}`).value = report.score;
-      document.getElementById(`original_feedback${index}`).value = report.feedback;
+      document.getElementById(`original_points_forts${index}`).value = report.points_forts;
+      document.getElementById(`original_points_a_ameliorer${index}`).value = report.points_a_ameliorer;
+      document.getElementById(`original_suggestions${index}`).value = report.suggestions;
 
-      // Pre-fill the correction feedback textarea with the proposed feedback
-      const correctionFeedbackTextarea = document.querySelector(`textarea[name="corrected_feedback${index}"]`);
-      if (correctionFeedbackTextarea) {
-        correctionFeedbackTextarea.value = report.feedback;
+      // Create separate correction textareas for each feedback component
+      const correctionDiv = document.querySelector(`.correction-feedback${index}`);
+      if (correctionDiv) {
+        correctionDiv.innerHTML = `
+          <label for="corrected_points_forts${index}">Points forts:</label>
+          <textarea class="form-control mb-2" name="corrected_points_forts${index}" rows="2">${report.points_forts}</textarea>
+          
+          <label for="corrected_points_a_ameliorer${index}">Points à améliorer:</label>
+          <textarea class="form-control mb-2" name="corrected_points_a_ameliorer${index}" rows="2">${report.points_a_ameliorer}</textarea>
+          
+          <label for="corrected_suggestions${index}">Suggestions:</label>
+          <textarea class="form-control" name="corrected_suggestions${index}" rows="2">${report.suggestions}</textarea>
+        `;
       }
+    });
 
-      // Add event listeners for radio buttons
+    // Add event listeners for all radio buttons AFTER creating the elements
+    llm_report.forEach((report, index) => {
       const scoreRadios = document.querySelectorAll(`input[name="agree_score${index}"]`);
       scoreRadios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        document.querySelector(`.correction-score${index}`).style.display = 
-        this.value === 'no' ? 'block' : 'none';
-      });
+        radio.addEventListener('change', function() {
+          const correctionDiv = document.querySelector(`.correction-score${index}`);
+          if (correctionDiv) {
+            correctionDiv.style.display = this.value === 'no' ? 'block' : 'none';
+          }
+        });
       });
 
       const feedbackRadios = document.querySelectorAll(`input[name="agree_feedback${index}"]`);
       feedbackRadios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        document.querySelector(`.correction-feedback${index}`).style.display = 
-        this.value === 'no' ? 'block' : 'none';
+        radio.addEventListener('change', function() {
+          const correctionDiv = document.querySelector(`.correction-feedback${index}`);
+          if (correctionDiv) {
+            correctionDiv.style.display = this.value === 'no' ? 'block' : 'none';
+          }
+        });
       });
-      });
-      });
-      });
-    </script>
+    });
+  });
+</script>
+    
 
     <button type="submit" class="btn btn-primary mt-4">Enregistrer</button>
     

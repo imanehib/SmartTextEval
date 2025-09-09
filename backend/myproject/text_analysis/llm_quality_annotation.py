@@ -43,12 +43,16 @@ class TextEvaluator:
             
             Fournissez :
             1. Note (sur une échelle de 1 à 4, où 1 = insuffisant, 2 = suffisant, 3 = bien, 4 = excellent)
-            2. Feedback concis sur le critère donné, comportant un constat des choses bien faites, une mise en valeur des principales erreurs et des suggestions pour améliorer sur une prochaine rédaction.
+            2. Un paragraphe court décrivant les points forts du texte.
+            3. Un paragraphe court décrivant les points à améliorer.
+            4. Un paragraphe court avec des suggestions concrètes pour améliorer le texte.
             
             Fournissez la réponse au format JSON strict suivant :
             {{
                 "score": [nombre entier de 1 à 4],
-                "feedback": "[feedback concis sous forme de paragraphe]"
+                "Points forts": "[Points forts concis sous forme de paragraphe]",
+                "Points à améliorer": "[Points à améliorer concis sous forme de paragraphe]",
+                "Suggestions": "[Suggestions concises sous forme de paragraphe]"
             }}
             """
             
@@ -71,14 +75,17 @@ class TextEvaluator:
                 data = json.loads(result)  # Parse JSON safely
 
                 score = max(1, min(4, int(data["score"])))
-                feedback = data["feedback"]
+                points_forts = data["Points forts"]
+                points_a_ameliorer = data["Points à améliorer"]
+                suggestions = data["Suggestions"]
 
-            
-                logger.info(score, feedback)
+                logger.info(score, points_forts, points_a_ameliorer, suggestions)
                 evaluations.append({
                     "rubric": rubric_name,
                     "score": score,
-                    "feedback": feedback
+                    "points_forts": points_forts,
+                    "points_a_ameliorer": points_a_ameliorer,
+                    "suggestions": suggestions
                 })
 
             except Exception as e:
@@ -86,7 +93,9 @@ class TextEvaluator:
                 evaluations.append({
                     "rubric": rubric_name,
                     "score": 0,
-                    "feedback": f"Erreur pendant l'évaluation: {str(e)}"
+                    "points_forts": f"Erreur pendant l'évaluation: {str(e)}",
+                    "points_a_ameliorer": "",
+                    "suggestions": ""
                 })
         return evaluations
 
