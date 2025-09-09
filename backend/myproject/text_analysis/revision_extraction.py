@@ -87,9 +87,12 @@ def extract_end(text_list, cursor_list, index_start, reason_start):
 
             if abs(deleted_chars - typed_chars) <= 5 :
                 typed_enough = True #une fois qu"on a suffisamment tapé, même si on tape plus avant d'avoir rencontré un espace on ne veut pas bloquer la fin de révision
-            if typed_enough and i < (len(text_list) - 1) and text_list[i + 1][cursor_list[i+1]-1].isspace():     
-                index_end = i + 1
-                return index_end
+            print(text_list[i+1])
+            print(cursor_list[i+1])
+            if len(text_list[i+1]) != 0:
+                if typed_enough and i < (len(text_list) - 1) and text_list[i + 1][cursor_list[i+1]-1].isspace():     
+                    index_end = i + 1
+                    return index_end
     elif reason_start == "move":
         for i in range(index_start + 2, len(text_list)):
             if abs(cursor_list[i]-cursor_list[i-1])>1:

@@ -121,6 +121,12 @@
       document.getElementById(`original_score${index}`).value = report.score;
       document.getElementById(`original_feedback${index}`).value = report.feedback;
 
+      // Pre-fill the correction feedback textarea with the proposed feedback
+      const correctionFeedbackTextarea = document.querySelector(`textarea[name="corrected_feedback${index}"]`);
+      if (correctionFeedbackTextarea) {
+        correctionFeedbackTextarea.value = report.feedback;
+      }
+
       // Add event listeners for radio buttons
       const scoreRadios = document.querySelectorAll(`input[name="agree_score${index}"]`);
       scoreRadios.forEach(radio => {
@@ -157,3 +163,5 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+

@@ -126,7 +126,7 @@ seule question, à quel niveau on l'implémente? selon moi, rédaction->question
 
 feedback_json= {
     "quality_weak":{
-        "réponse_consigne":{
+        "pertinence":{
             "few_revisions": "Pendant l'écriture, relisez vos idées et essayer d'évaluer leur pertinence par rapport au sujet. Si elles s'en écartent, prenez le temps de les reformuler ou de revoir votre approche.",
             "many_revisions": "Vous avez pris le temps de retravailler vos idées pendant l'écriture, félicitations, c'est un bon réflexe ! Poursuivez ce travail en vous assurant que votre texte répond bien au sujet et est pertinent.",
             "late_revisions": "Il est important de relire votre travail à la fin du processus d'écriture. Cela vous permettra de repérer les incohérences et d'améliorer la qualité globale de votre texte.",
@@ -164,37 +164,37 @@ feedback_json= {
 
     },
     "quality_strong":{
-        "réponse_consigne":{
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
-            "late_revisions": "towrite",
-            "early_revisions": "towrite"
+        "pertinence":{
+            "few_revisions": "Votre texte est pertinent, mais vous pourriez encore l'améliorer en reformulant vos idées pendant l'écriture pour vous assurer qu'elles restent bien alignées avec le sujet.",
+            "many_revisions": "Votre texte est pertinent et vous avez pris le temps de retravailler vos idées pendant l'écriture, félicitations ! Continuez à vous assurer que votre texte répond bien au sujet.",
+            "late_revisions": "Il est important de vérifier la pertinence de votre texte à la fin du processus d'écriture. Cela vous permettra de vous assurer que vos idées sont toujours en phase avec le sujet.",
+            "early_revisions": "Dès le début de l'écriture, prenez l'habitude de vous interroger sur la pertinence de vos idées par rapport au sujet. Cela vous aidera à mieux structurer votre argumentation."
         },
         "arguments": {
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
-            "late_revisions": "towrite",
-            "early_revisions": "towrite"
+            "few_revisions": "Votre argumentation est bonne, peut-être que vous pouvez encore l'améliorer en reformulant vos arguments pour vous assurer qu'ils sont bien fondés et pertinents.",
+            "many_revisions": "Vous avez pris le temps de retravailler vos arguments, c'est un bon réflexe ! Assurez-vous qu'ils sont bien structurés et qu'ils soutiennent votre propos.",
+            "late_revisions": "Il est important de vérifier la solidité de vos arguments à la fin du processus d'écriture. Cela vous permettra de vous assurer qu'ils sont toujours pertinents et bien fondés.",
+            "early_revisions": "Dès le début de l'écriture, prenez l'habitude de vous interroger sur la pertinence de vos arguments. Cela vous aidera à mieux structurer votre réflexion."
         },
         "organisation":{
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
-            "late_revisions": "towrite",
-            "early_revisions": "towrite"
+            "few_revisions": "Votre texte est bien organisé, mais vous pourriez encore l'améliorer en révisant la structure de votre texte pendant l'écriture pour vous assurer qu'elle est logique et fluide.",
+            "many_revisions": "Vous avez pris le temps de retravailler l'organisation de votre texte, c'est un bon réflexe ! Assurez-vous qu'elle est logique et fluide.",
+            "late_revisions": "Il est important de vérifier l'organisation de votre texte à la fin du processus d'écriture. Cela vous permettra de vous assurer qu'elle est toujours logique et fluide.",
+            "early_revisions": "Dès le début de l'écriture, prenez l'habitude de vous interroger sur l'organisation de votre texte. Cela vous aidera à mieux structurer vos idées."
         },
         "vocabulaire":{
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
+            "few_revisions": "Votre vocabulaire est riche, mais vous pourriez encore l'améliorer en utilisant des synonymes ou des expressions variées pour éviter les répétitions.",
+            "many_revisions": "Vous avez pris le temps de retravailler votre vocabulaire, c'est un bon réflexe ! Assurez-vous d'utiliser des termes précis et appropriés.",
         },
         "orthographe":{
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
-            "burst_cuts": "towrite"
+            "few_revisions": "Votre texte contient peu ou pas de fautes d'orthographe. Assurez-vous d'effectuer des relectures à ce sujet pour qu'il soit parfait.",
+            "many_revisions": "Vous avez fait des efforts pour corriger les fautes d'orthographe, c'est un bon point ! Continuez à être vigilant.",
+            "burst_cuts": "Traitez un problème à la fois : écrivez d'abord vos idées, puis revenez pour corriger les fautes d'orthographe."
         },
         "grammaire":{
-            "few_revisions": "towrite",
-            "many_revisions": "towrite",
-            "burst_cuts": "towrite"
+            "few_revisions": "Votre texte présente peu ou pas de fautes de grammaire. Assurez-vous d'effectuer des relectures à ce sujet pour qu'il soit parfait.",
+            "many_revisions": "Vous avez fait des efforts pour corriger les fautes de grammaire, c'est un bon point ! Continuez à être vigilant.",
+            "burst_cuts": "Traitez un problème à la fois : écrivez d'abord vos idées, puis revenez pour corriger les fautes de grammaire."
         },
         "style":{
 

@@ -97,10 +97,9 @@
       <div class="report-item"></div>
       <input type="hidden" name="rubric_name{{ forloop.counter0 }}" value="{{ label }}">
 
-      <p>Score: <span id="score{{ forloop.counter0 }}"></span></p>
-      <p>Feedback: <span id="feedback{{ forloop.counter0 }}"></span></p>
+      <p><strong>Feedback</strong> <span id="feedback{{ forloop.counter0 }}"></span></p>
       {% if user.group == 3 %}
-      <p>Révision: <span id="feedback-revision{{ forloop.counter0 }}"></span></p>
+      <p><strong>Comment faire mieux?</strong> <span id="feedback-revision{{ forloop.counter0 }}"></span></p>
       {% endif %}
     </div>
   </div>
@@ -108,69 +107,115 @@
   {% endfor %}
 
 
-  {{ feedback_opened|json_script:"feedback-opened-data" }}
+  {{ feedback_timing|json_script:"feedback-timing-data" }}
   <script>
+    
     // Initialize feedback_opened object
-    let feedback_opened = {};
-    try {
-      feedback_opened = JSON.parse(document.getElementById('feedback-opened-data').textContent) || {};
-    } catch (e) {
-      console.error('Error parsing feedback_opened:', e);
-      feedback_opened = {};
-    }
+    let feedback_timing = {}; // Track timing for each feedback
+    let openStartTime = {}; // Track when each feedback was opened
 
-    // Update the toggleReport function to track opened boxes
+
+    try {
+      feedback_timing = JSON.parse(document.getElementById('feedback-timing-data').textContent) || {};
+    } catch (e) {
+      console.error('Error parsing feedback_timing:', e);
+      feedback_timing = {};
+    }
+    console.log('Initial feedback_timing:', feedback_timing);
+    let currentlyOpenIndex = null;
+
+    // Update the toggleReport function to track opened boxes and timing
     function toggleReport(index) {
       const content = document.getElementById(`report-content${index}`);
       const clickableDiv = document.querySelector(`[data-index="${index}"]`);
       const toggle = clickableDiv.querySelector('span');
       const label = clickableDiv.dataset.label;
+      const currentTime = Date.now();
+      
+      // Close previously opened report if it exists and is different
+      if (currentlyOpenIndex !== null && currentlyOpenIndex !== index) {
+        const prevContent = document.getElementById(`report-content${currentlyOpenIndex}`);
+        const prevClickableDiv = document.querySelector(`[data-index="${currentlyOpenIndex}"]`);
+        const prevToggle = prevClickableDiv.querySelector('span');
+        const prevLabel = prevClickableDiv.dataset.label;
+        
+        // Calculate time spent on previous feedback
+        if (openStartTime[prevLabel]) {
+          const timeSpent = currentTime - openStartTime[prevLabel];
+          feedback_timing[prevLabel] = (feedback_timing[prevLabel] || 0) + timeSpent;
+          console.log(`Time spent on ${prevLabel}: ${timeSpent} ms`);
+          console.log('Updated feedback_timing:', feedback_timing);
+          delete openStartTime[prevLabel];
+        }
+        
+        prevContent.style.display = 'none';
+        prevToggle.textContent = '+';
+      }
       
       if (content.style.display === 'none') {
         content.style.display = 'block';
         toggle.textContent = '−';
-        feedback_opened[label] = true;
+        openStartTime[label] = currentTime;
+        currentlyOpenIndex = index;
       } else {
         content.style.display = 'none';
         toggle.textContent = '+';
-        feedback_opened[label] = false;
+        
+        // Calculate time spent on this feedback
+        if (openStartTime[label]) {
+          const timeSpent = currentTime - openStartTime[label];
+          feedback_timing[label] = (feedback_timing[label] || 0) + timeSpent;
+          delete openStartTime[label];
+        }
+        
+        currentlyOpenIndex = null;
       }
     }
+
   </script>
 
 
 
-<!-- Handle feedback_opened data in the feedback view before redirecting -->
-{% if user.group == 1 %}
-<div class="text-center my-4">
-  <form method="post" action="">
-    {% csrf_token %}
-    <input type="hidden" name="feedback_opened" value="">
-    <input type="hidden" name="next_view" value="student_dashboard">
-    <input type="hidden" name="text_id" value="{{ text_id }}">
-    <button type="submit" class="btn btn-primary" onclick="submitFeedbackOpened(this.form)">J'ai fini de lire et je veux passer à la suite</button>
-  </form>
-</div>
-{% endif %}
 
-{% if user.group == 2 %}
 <div class="text-center my-4">
   <form method="post" action="">
     {% csrf_token %}
     <input type="hidden" name="feedback_opened" value="">
-    <input type="hidden" name="next_view" value="questionnaire_report">
     <input type="hidden" name="text_id" value="{{ text_id }}">
     <button type="submit" class="btn btn-primary" onclick="submitFeedbackOpened(this.form)">J'ai fini de lire et je veux passer à la suite</button>
   </form>
 </div>
-{% endif %}
+
+
+
+
 
 <script>
-  function submitFeedbackOpened(form) {
-    const input = form.querySelector('input[name="feedback_opened"]');
-    input.value = JSON.stringify(feedback_opened);
-  }
-</script>
+// Update the submitFeedbackOpened function to include timing data
+    function submitFeedbackOpened(form) {
+      const currentTime = Date.now();
+      
+      // Close any currently open feedback and record its time
+      if (currentlyOpenIndex !== null) {
+        const clickableDiv = document.querySelector(`[data-index="${currentlyOpenIndex}"]`);
+        const label = clickableDiv.dataset.label;
+        
+        if (openStartTime[label]) {
+          const timeSpent = currentTime - openStartTime[label];
+          feedback_timing[label] = (feedback_timing[label] || 0) + timeSpent;
+        }
+      }
+      
+      const feedbackOpenedInput = form.querySelector('input[name="feedback_opened"]');
+      if (feedbackOpenedInput) {
+        console.log('Feedback timing to submit:', feedback_timing);
+        feedbackOpenedInput.value = JSON.stringify(feedback_timing || {});
+      } else {
+        console.error('Could not find feedback_opened input field');
+      }
+    }
+  </script>
+
 </main>
 
 

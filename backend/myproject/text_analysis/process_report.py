@@ -112,8 +112,14 @@ def compute_indicators(revisions: List[Revision], decoded_data: DecodedData, gra
         if time-prev_time>2:
             break_count += 1
             break_time += time-prev_time
+            graph_info.append({
+                "start": prev_time,
+                "end": time,
+                "type": "break" 
+            }) # est ce qu'on veut que les pauses soient affichées par dessus les phases déjà existantes ou est ce qu'on veut les incorporer dans le graph?
+            # 
         prev_time = time
-    
+        
     deletion_count = sum(1 for revision in revisions if revision.reason_start == "deletion")
     insertion_count = sum(1 for revision in revisions if revision.reason_start == "move")
     # Calculate ratio of final text to total text processed

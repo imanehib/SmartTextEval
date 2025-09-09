@@ -15,7 +15,7 @@ from ..text_analysis.revision_quality_links import analyze_process_report, gener
 
 
 
-from .models import Questionnaire, QuestionnaireFeeling, SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
+from .models import LlmEvaluation, Questionnaire, QuestionnaireFeeling, SavedText, Exercise , UserTyping , TypingEvent, SavedAnnotation
 from .forms import ExerciseForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponse, JsonResponse
@@ -230,10 +230,7 @@ class SaveTypingDataView(View):
             request.session['text_id'] = saved.id
             user = CustomUser.objects.get(id=request.user.id)
             #ceux qui reçoivent le feedback avec process report ont aussi le questionnaire sur la révision
-            if user.group==2:
-                next_url = reverse('text_analysis:submit_questionnaire')
-            else:
-                next_url = reverse('text_analysis:thank_you')
+            next_url = reverse('text_analysis:submit_questionnaire')
 
             return JsonResponse({
                 'status': 'success',
@@ -377,9 +374,11 @@ def annotate_view(request):
                         #annotations = SavedAnnotation.objects.filter(exercise=exercise).order_by('-created_at')
                         return render(request, 'text_analysis/annotate.html', context)
                     else:
+                        messages.info(request, "Aucun texte à évaluer pour le moment, merci de revenir plus tard.")
                         return redirect('accounts:professor_dashboard')
                 else:
-                        return redirect('accounts:professor_dashboard')
+                    messages.info(request, "Aucun texte à évaluer pour le moment, merci de revenir plus tard.")
+                    return redirect('accounts:professor_dashboard')
 
 """
 @login_required
@@ -429,15 +428,19 @@ def process_report_view(request, id):
 def process_report_view(request, id):
     
     my_text = get_object_or_404(SavedText, id=id)
+    keystrokes = TypingEvent.objects.filter(saved_text=id).order_by('id')
+    time_list = [k.timestamp for k in keystrokes]
+    text_list = [k.text_progression for k in keystrokes]
+    cursor_list = [k.cursor_position for k in keystrokes]
     if my_text.report_data:
         # Build context from saved report
         context = {
             'text': my_text.text,
             'instructions': my_text.instructions,
             'process_report': my_text.report_data,
-            # You may want to reconstruct time_list, text_list, cursor_list if you saved them
-            # or skip them if not needed for rendering.
-            #TODO
+            'text_list': text_list,
+            'time_list': time_list,
+            'cursor_list': cursor_list,
             'graph_info': my_text.report_data.get("graph_info", [])
         }
         return render(request, 'text_analysis/process_report.html', context)
@@ -449,7 +452,6 @@ def process_report_view(request, id):
 def feedback_view(request):
     if request.method == 'POST':
         feedback_opened_data = request.POST.get('feedback_opened', '{}')
-        next_view = request.POST.get('next_view')
         text_id = request.POST.get('text_id')
         try:
             feedback_opened = json.loads(feedback_opened_data)
@@ -465,15 +467,13 @@ def feedback_view(request):
         # Store text_id in session for questionnaire_feeling
         request.session['text_id'] = text_id
 
-        if next_view == "questionnaire_report":
-            return redirect('text_analysis:questionnaire_report')
-        else:
-            return redirect('text_analysis:submit_questionnaire_feeling')
+
+        return redirect('text_analysis:submit_questionnaire_feeling')
     else:
         my_text = SavedText.objects.filter(student=request.user.id, session=request.user.session-1).first() #on sélectionne un texte qui doit correspondre à la dernière session d'écriture et à l'étudiant concerné
         #my_text = get_object_or_404(SavedText, pk=2)
         labels = ["Pertinence", "Organisation", "Arguments", "Vocabulaire", "Grammaire", "Orthographe", "Style"]
-        feedback_opened={"Pertinence": False, "Organisation": False, "Arguments": False, "Vocabulaire": False, "Grammaire": False, "Orthographe": False, "Style": False}
+        feedback_opened={"Pertinence": 0 , "Organisation": 0, "Arguments": 0, "Vocabulaire": 0, "Grammaire": 0, "Orthographe": 0, "Style": 0}
         if request.user.group == 1 or request.user.group == 2:
             context = {'text': my_text.text, 'instructions': my_text.instructions, 'text_id':my_text.pk, 'labels': labels, 'feedback_opened': feedback_opened, 'llm_report': my_text.report_data.get("llm_evaluation", [])}
         else:
@@ -521,7 +521,7 @@ def run_analysis_in_background(id, user_id):
     #report = text_fake.report_data
     report["llm_evaluation"] = evaluation
 
-    cache_key = f'process_report_{id}'
+    #cache_key = f'process_report_{id}'
     context = {
         'text': my_text.text,
         'instructions': my_text.instructions,
@@ -534,7 +534,12 @@ def run_analysis_in_background(id, user_id):
         # Save report in DB
     my_text.report_data = report
     my_text.save()
-    cache.set(cache_key, context, timeout=86400)
+    llm_evaluation = LlmEvaluation(
+        saved_text=my_text,
+        report_data=report['llm_evaluation']
+    )
+    llm_evaluation.save()
+    #cache.set(cache_key, context, timeout=86400)
     
 
 

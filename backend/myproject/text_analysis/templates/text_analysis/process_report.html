@@ -125,6 +125,10 @@
 
     <div style="height: 30px; width: 40px; border: 2px solid #333; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2); background-color: #2196F3;"></div>
     <span>Révision de sens</span>
+
+    <div style="height: 30px; width: 40px; border: 2px solid #333; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2); background-color: #3B2077;"></div>
+    <span>Pause</span>
+
   
 </div>
 </div>
@@ -212,7 +216,7 @@
 </div>
 
 <div class="text-center my-4">
-      <a href="{% url 'text_analysis:submit_questionnaire_feeling' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
+      <a href="{% url 'text_analysis:feedback' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
 </div>
 
 
@@ -229,6 +233,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   const textList = JSON.parse(document.getElementById("text-data").textContent);
   const timeList = JSON.parse(document.getElementById("time-data").textContent);
+  console.log(textList);
+  console.log(timeList); 
   const display = document.getElementById("display");
   const playButton = document.getElementById("playButton");
   playButton.addEventListener("click", () => {
@@ -236,6 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let i = 0;
   function step() {
     if (i >= textList.length) return;
+    console.log(textList[i]);
     display.textContent = textList[i];
     i++;
     if (i < textList.length) {
@@ -270,6 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "writing": "#4caf50",
     "Surface": "#f44336",
     "Meaning-oriented": "#2196F3",
+    "break": "#3B2077",
     default: "#999"
   };
 

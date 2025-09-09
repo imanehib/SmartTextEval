@@ -43,7 +43,7 @@ def student_signup(request):
             user.role = CustomUser.STUDENT  # ou simplement 'student'
             user.save()
             login(request, user)
-            return redirect('text_analysis:home')  # ou une autre route adaptée
+            return redirect('accounts:student_dashboard')  # ou une autre route adaptée
     else:
         form = StudentSignUpForm()
     return render(request, 'registration/student_signup.html', {'form': form})
@@ -82,11 +82,14 @@ def student_dashboard(request):
         return HttpResponseForbidden("Accès interdit.")
     
     exercise = Exercise.objects.filter(session=request.user.session).first()
-    saved_text = SavedText.objects.filter(exercise=exercise).first()
-    print(saved_text.text)
+
+
+    saved_text = SavedText.objects.filter(exercise=exercise, student_id=request.user.id).first()
     if saved_text is not None:
         if saved_text.n_annotated >= 1:
             request.user.feedback_ready = request.user.session  # si l'annotation a été faite (sous-entend que l'analyse aussi) alors le feedback est prêt
+        else:
+            request.user.feedback_ready = 0
     else:
         request.user.feedback_ready = 0
     request.user.save()

@@ -33,6 +33,13 @@ class SavedText(models.Model):
     def __str__(self):
         return self.text[:50]  # Afficher un extrait du texte
 
+class LlmEvaluation(models.Model):
+    saved_text = models.ForeignKey(SavedText, on_delete=models.CASCADE, related_name="llm_evaluations")
+    report_data = models.JSONField(null=True, blank=True)  # Stocke les données du rapport JSON
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Évaluation pour {self.saved_text.id}"
 
 class UserTyping(models.Model):
     session_id = models.CharField(max_length=255)

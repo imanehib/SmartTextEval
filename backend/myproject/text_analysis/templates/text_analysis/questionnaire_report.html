@@ -120,11 +120,19 @@
     </div>
 </div>
 
+{% if user.group != 1 %}
 <div class="text-center my-4">
     {% if saved_text and saved_text.pk %}
         <a href="{% url 'text_analysis:process_report' saved_text.id %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
     {% endif %}
 </div>
+{% endif %}
+
+{% if user.group == 1 %}
+<div class="text-center my-4">
+    <a href="{% url 'text_analysis:feedback' %}" class="btn btn-primary">J'ai fini de lire et je veux passer à la suite</a>
+</div>
+{% endif %}
 
 
 </main>
