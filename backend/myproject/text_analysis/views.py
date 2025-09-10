@@ -318,8 +318,12 @@ def annotate_view(request):
             rubric_name = request.POST.get(f"rubric_name{index}")
             original_score = request.POST.get(f"original_score{index}")
             corrected_score = request.POST.get(f"corrected_score{index}")
-            original_feedback = request.POST.get(f"original_feedback{index}")
-            corrected_feedback = request.POST.get(f"corrected_feedback{index}")
+            original_points_forts = request.POST.get(f"original_points_forts{index}")
+            original_points_a_ameliorer = request.POST.get(f"original_points_a_ameliorer{index}")
+            original_suggestions = request.POST.get(f"original_suggestions{index}")
+            corrected_points_forts = request.POST.get(f"corrected_points_forts{index}")
+            corrected_points_a_ameliorer = request.POST.get(f"corrected_points_a_ameliorer{index}")
+            corrected_suggestions = request.POST.get(f"corrected_suggestions{index}")
             agree_feedback = request.POST.get(f"agree_feedback{index}")
 
            
@@ -328,16 +332,22 @@ def annotate_view(request):
             "original_score": original_score,
             "agree_score": agree_score,
             "corrected_score": corrected_score,
-            "original_feedback": original_feedback,
+            "original_points_forts": original_points_forts,
+            "original_points_a_ameliorer": original_points_a_ameliorer,
+            "original_suggestions": original_suggestions,
             "agree_feedback": agree_feedback,
-            "corrected_feedback": corrected_feedback
+            "corrected_points_forts": corrected_points_forts,
+            "corrected_points_a_ameliorer": corrected_points_a_ameliorer,
+            "corrected_suggestions": corrected_suggestions
             })
 
             # Add to report array based on agreement
             report.append({
             "rubric": rubric_name,
             "score": corrected_score if agree_score == "false" else original_score,
-            "feedback": corrected_feedback if agree_feedback == "false" else original_feedback
+            "points_forts": corrected_points_forts,
+            "points_a_ameliorer": corrected_points_a_ameliorer,
+            "suggestions": corrected_suggestions
             })
             
             index += 1

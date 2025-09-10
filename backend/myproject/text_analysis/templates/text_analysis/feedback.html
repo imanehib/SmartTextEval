@@ -97,7 +97,9 @@
       <div class="report-item"></div>
       <input type="hidden" name="rubric_name{{ forloop.counter0 }}" value="{{ label }}">
 
-      <p><strong>Feedback</strong> <span id="feedback{{ forloop.counter0 }}"></span></p>
+      <p><strong>Points forts</strong> <span id="points-forts{{ forloop.counter0 }}"></span></p>
+      <p><strong>Points à améliorer</strong> <span id="points-a-ameliorer{{ forloop.counter0 }}"></span></p>
+      <p><strong>Suggestions</strong> <span id="suggestions{{ forloop.counter0 }}"></span></p>
       {% if user.group == 3 %}
       <p><strong>Comment faire mieux?</strong> <span id="feedback-revision{{ forloop.counter0 }}"></span></p>
       {% endif %}
@@ -226,7 +228,9 @@
   // Injection dynamique des valeurs
   llm_report.forEach((item, index) => {
     const scoreEl = document.getElementById(`score${index}`);
-    const feedbackEl = document.getElementById(`feedback${index}`);
+    const pointsFortsEl = document.getElementById(`points-forts${index}`);
+    const pointsAAmeliorerEl = document.getElementById(`points-a-ameliorer${index}`);
+    const suggestionsEl = document.getElementById(`suggestions${index}`);
     const boxEl = document.getElementById(`report-box${index}`);
    
 
@@ -234,11 +238,17 @@
 
     // score numérique
     const score = item.score ?? null;
-
+    console.log(item)
     if (scoreEl) scoreEl.textContent = scoreText[score] ?? "—";
-    if (feedbackEl) {
+    if (pointsFortsEl) {
       // Feedback du LLM + notre mapping
-      feedbackEl.textContent = item.feedback ?? "—";
+      pointsFortsEl.textContent = item.points_forts ?? "—";
+    }
+    if (pointsAAmeliorerEl) {
+      pointsAAmeliorerEl.textContent = item.points_a_ameliorer ?? "—";
+    }
+    if (suggestionsEl) {
+      suggestionsEl.textContent = item.suggestions ?? "—";
     }
     if (boxEl && score) {
       boxEl.style.backgroundColor = scoreColor[score] || "white";

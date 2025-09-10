@@ -23,7 +23,7 @@ class Revision:
         message = client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
-            content=f"Classify this revision:\nBefore: {self.text_before}\nAfter: {self.text_end}\nReturn JSON output."
+            content=f"Classify this revision:\nBefore: {self.text_before}\nAfter: {self.text_end}\nReturn JSON output only."
         )
 
         # Run concerned assistant
