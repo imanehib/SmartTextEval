@@ -345,9 +345,9 @@ def annotate_view(request):
             report.append({
             "rubric": rubric_name,
             "score": corrected_score if agree_score == "false" else original_score,
-            "points_forts": corrected_points_forts if agree_feedback == "false" else original_points_forts,
-            "points_a_ameliorer": corrected_points_a_ameliorer if agree_feedback == "false" else original_points_a_ameliorer,
-            "suggestions": corrected_suggestions if agree_feedback == "false" else original_suggestions
+            "points_forts": corrected_points_forts,
+            "points_a_ameliorer": corrected_points_a_ameliorer,
+            "suggestions": corrected_suggestions
             })
             
             index += 1

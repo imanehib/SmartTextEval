@@ -202,3 +202,15 @@ feedback_json= {
 
     }
 }
+
+
+
+"""
+Nouvelle approche : 
+
+un feedback global sur la révision qui est une concaténation de ces différentes parties ? 
+Comment rendre le feedback le plus efficace possible ?
+Charge cognitive avec toutes les infos pour le groupe 3 sans doute préjudiciable ?
+
+
+"""
